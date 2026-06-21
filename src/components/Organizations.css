@@ -23,6 +23,8 @@
   border: none;
   text-align: left;
   color: var(--text-primary);
+  min-height: 44px;
+  cursor: pointer;
 }
 
 .org-card-header:hover {
@@ -120,5 +122,9 @@
   .org-contact-meta {
     flex-direction: column;
     gap: 0.25rem;
+  }
+
+  .org-card-title h2 {
+    font-size: 1rem;
   }
 }

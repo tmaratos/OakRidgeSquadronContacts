@@ -2,6 +2,10 @@
   background: var(--navy-light);
   border-bottom: 3px solid var(--gold);
   padding: 0.75rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding-top: max(0.75rem, env(safe-area-inset-top));
 }
 
 .header-inner {
@@ -17,11 +21,14 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .header-logo {
   width: 48px;
   height: auto;
+  flex-shrink: 0;
 }
 
 .header-title {
@@ -44,6 +51,9 @@
 }
 
 .nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 0.5rem 1rem;
   color: #c8d0dc;
   text-decoration: none;
@@ -67,6 +77,11 @@
   align-items: center;
   gap: 0.75rem;
   margin-left: auto;
+  flex-shrink: 0;
+}
+
+.header-user-mobile {
+  display: none;
 }
 
 .user-name {
@@ -79,19 +94,90 @@
   color: #a8b4c4;
 }
 
+.header-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.menu-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 0 auto;
+  background: var(--text-on-dark);
+  border-radius: 1px;
+}
+
 @media (max-width: 768px) {
+  .app-header {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
   .header-inner {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 0;
+  }
+
+  .header-brand {
+    flex: 1;
+  }
+
+  .header-menu-toggle {
+    display: flex;
+  }
+
+  .header-user-desktop {
+    display: none;
   }
 
   .header-nav {
-    order: 3;
-    flex-wrap: wrap;
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 100%;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
 
-  .header-user {
+  .header-nav.open {
+    display: flex;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 0.75rem 1rem;
+  }
+
+  .header-user-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
     margin-left: 0;
-    flex-wrap: wrap;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .header-user-mobile .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .header-squadron {
+    font-size: 0.7rem;
   }
 }

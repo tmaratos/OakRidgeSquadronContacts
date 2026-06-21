@@ -29,3 +29,14 @@
 .filters-panel .form-group {
   margin-bottom: 0.75rem;
 }
+
+@media (max-width: 768px) {
+  .filters-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters-top .btn {
+    width: 100%;
+  }
+}

@@ -31,9 +31,12 @@
   border: none;
   color: var(--blue-accent);
   font-weight: 600;
-  padding: 0;
+  padding: 0.35rem 0;
+  min-height: 44px;
   text-align: left;
   text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
 }
 
 .contact-name-cell {
@@ -59,6 +62,7 @@
 
 .actions-cell .btn {
   margin-right: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 .empty-message {
@@ -75,5 +79,10 @@
   .contact-table th,
   .contact-table td {
     padding: 0.5rem;
+  }
+
+  .actions-cell .btn {
+    min-height: 36px;
+    padding: 0.35rem 0.6rem;
   }
 }

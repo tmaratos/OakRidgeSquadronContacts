@@ -24,12 +24,20 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   font-family: var(--font);
   background: var(--navy);
   color: var(--text-on-dark);
   min-height: 100vh;
+  min-height: 100dvh;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 #root {
@@ -50,6 +58,14 @@ select,
 textarea {
   font-family: inherit;
   font-size: 1rem;
+  min-height: 44px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: auto;
+  width: 18px;
+  height: 18px;
 }
 
 .app-layout {
@@ -97,6 +113,7 @@ textarea {
   border-radius: var(--radius);
   font-weight: 600;
   font-size: 0.95rem;
+  min-height: 44px;
   transition: background 0.15s, opacity 0.15s;
 }
 
@@ -146,6 +163,13 @@ textarea {
 .btn-sm {
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
+  min-height: 36px;
+}
+
+@media (max-width: 768px) {
+  .btn-sm {
+    min-height: 44px;
+  }
 }
 
 .form-group {
@@ -227,9 +251,12 @@ textarea {
   background: none;
   border: none;
   font-size: 1.2rem;
-  padding: 0.15rem 0.35rem;
+  padding: 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
   line-height: 1;
   color: #bbb;
+  flex-shrink: 0;
 }
 
 .star-btn.active {
@@ -240,12 +267,46 @@ textarea {
   color: var(--gold-hover);
 }
 
+.desktop-table-only {
+  display: block;
+}
+
+.mobile-cards-only {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .app-main {
     padding: 1rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .page-title {
     font-size: 1.4rem;
+  }
+
+  .desktop-table-only {
+    display: none !important;
+  }
+
+  .mobile-cards-only {
+    display: grid;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
   }
 }

@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
 .modal-content {
@@ -45,7 +45,10 @@
   font-size: 1.75rem;
   line-height: 1;
   color: var(--text-secondary);
-  padding: 0 0.25rem;
+  padding: 0.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
 }
 
 .modal-close:hover {
@@ -133,4 +136,19 @@
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--card-border);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    max-height: calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
 }

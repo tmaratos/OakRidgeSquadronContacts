@@ -1,9 +1,10 @@
 .login-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
   background: linear-gradient(160deg, var(--navy) 0%, #162840 50%, var(--charcoal) 100%);
 }
 
@@ -50,7 +51,8 @@
   color: var(--blue-accent);
   font-size: 0.9rem;
   text-decoration: underline;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  min-height: 44px;
 }
 
 .forgot-link:hover {
@@ -65,7 +67,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
 .forgot-modal {

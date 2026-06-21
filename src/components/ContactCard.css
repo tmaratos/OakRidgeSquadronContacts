@@ -50,14 +50,27 @@
   gap: 1rem;
 }
 
-@media (min-width: 769px) {
-  .mobile-cards-only {
-    display: none;
-  }
+.contact-card-actions .btn {
+  min-height: 44px;
+  flex: 1 1 auto;
 }
 
-@media (max-width: 768px) {
-  .desktop-table-only {
-    display: none;
+.link-btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .contact-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-card-actions {
+    flex-direction: column;
+  }
+
+  .contact-card-actions .btn {
+    width: 100%;
   }
 }

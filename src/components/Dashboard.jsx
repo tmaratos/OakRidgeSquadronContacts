@@ -10,8 +10,10 @@ import {
 import { computeOrganizationStats } from '../utils/searchUtils';
 import GlobalSearchBar from './GlobalSearchBar';
 import ContactTable from './ContactTable';
+import ContactCard from './ContactCard';
 import ContactDetailsModal from './ContactDetailsModal';
 import ImportContacts, { ImportContactsButton } from './ImportContacts';
+import './ContactCard.css';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -81,7 +83,21 @@ export default function Dashboard() {
         <div className="card dashboard-search-results">
           <h2>Search Results ({searchResults.length})</h2>
           {searchResults.length ? (
-            <ContactTable contacts={searchResults} onView={setViewContact} showOwner />
+            <>
+              <div className="desktop-table-only">
+                <ContactTable contacts={searchResults} onView={setViewContact} showOwner />
+              </div>
+              <div className="mobile-cards-only contact-cards-grid">
+                {searchResults.map((contact) => (
+                  <ContactCard
+                    key={contact.id}
+                    contact={contact}
+                    onView={setViewContact}
+                    showOwner
+                  />
+                ))}
+              </div>
+            </>
           ) : (
             <p className="empty-message">No contacts match your search.</p>
           )}

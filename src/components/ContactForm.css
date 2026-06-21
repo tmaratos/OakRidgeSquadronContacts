@@ -103,3 +103,36 @@
   color: var(--text-secondary);
   font-style: italic;
 }
+
+@media (max-width: 768px) {
+  .array-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .array-row select,
+  .array-row input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .array-row .btn {
+    width: 100%;
+  }
+
+  .tag-input-row {
+    flex-direction: column;
+  }
+
+  .tag-input-row .btn {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
