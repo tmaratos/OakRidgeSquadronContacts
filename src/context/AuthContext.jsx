@@ -11,17 +11,29 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userProfile = await getContactUserProfile(firebaseUser.uid);
-        setUser(firebaseUser);
-        setProfile(userProfile);
-      } else {
-        setUser(null);
-        setProfile(null);
-      }
+    if (!auth) {
       setLoading(false);
-    });
+      return undefined;
+    }
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (firebaseUser) => {
+        if (firebaseUser) {
+          const userProfile = await getContactUserProfile(firebaseUser.uid);
+          setUser(firebaseUser);
+          setProfile(userProfile);
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Auth state listener error:', error);
+        setLoading(false);
+      }
+    );
     return unsubscribe;
   }, []);
 
