@@ -10,6 +10,7 @@ dist/
 .env.*.local
 serviceAccountKey.json
 *-service-account*.json
+scripts/seedUsers.local.json
 
 # Logs
 *.log

@@ -1,0 +1,22 @@
+.recovery-email-settings {
+  max-width: 520px;
+  padding: 1.5rem;
+}
+
+.recovery-email-settings h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.recovery-email-intro {
+  margin: 0 0 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.success-message {
+  color: #6ee7a0;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+}

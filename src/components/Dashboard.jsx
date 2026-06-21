@@ -13,6 +13,7 @@ import ContactTable from './ContactTable';
 import ContactCard from './ContactCard';
 import ContactDetailsModal from './ContactDetailsModal';
 import ImportContacts, { ImportContactsButton } from './ImportContacts';
+import RecoveryEmailSettings from './RecoveryEmailSettings';
 import './ContactCard.css';
 import './Dashboard.css';
 
@@ -185,6 +186,8 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      <RecoveryEmailSettings />
 
       {viewContact && (
         <ContactDetailsModal

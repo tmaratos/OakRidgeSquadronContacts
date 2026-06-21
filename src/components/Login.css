@@ -85,3 +85,9 @@
   line-height: 1.5;
   margin: 0 0 1.25rem;
 }
+
+.success-message {
+  color: #6ee7a0;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+}

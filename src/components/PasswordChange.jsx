@@ -1,17 +1,26 @@
 import { useState } from 'react';
 import { changePassword } from '../services/authService';
 import { clearMustChangePassword } from '../services/userService';
+import { updateRecoveryEmail } from '../services/passwordResetService';
 import { useAuth } from '../context/AuthContext';
 import './PasswordChange.css';
 
 export default function PasswordChange() {
   const { user, profile, refreshProfile } = useAuth();
+  const needsRecoveryEmail = !profile?.recoveryEmail;
+  const [recoveryEmail, setRecoveryEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
+    if (needsRecoveryEmail) {
+      const trimmed = recoveryEmail.trim();
+      if (!trimmed || !trimmed.includes('@')) {
+        return 'Enter a valid recovery email address.';
+      }
+    }
     if (newPassword.length < 8) {
       return 'Password must be at least 8 characters.';
     }
@@ -35,6 +44,9 @@ export default function PasswordChange() {
     setError('');
     setLoading(true);
     try {
+      if (needsRecoveryEmail) {
+        await updateRecoveryEmail(recoveryEmail.trim());
+      }
       await changePassword(newPassword);
       await clearMustChangePassword(user.uid);
       await refreshProfile();
@@ -54,6 +66,24 @@ export default function PasswordChange() {
         </p>
 
         <form onSubmit={handleSubmit}>
+          {needsRecoveryEmail && (
+            <div className="form-group">
+              <label htmlFor="recoveryEmail">Recovery Email</label>
+              <input
+                id="recoveryEmail"
+                type="email"
+                autoComplete="email"
+                value={recoveryEmail}
+                onChange={(e) => setRecoveryEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+              <p className="field-hint">
+                Used for password resets. This is not your sign-in username.
+              </p>
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="newPassword">New Password</label>
             <input

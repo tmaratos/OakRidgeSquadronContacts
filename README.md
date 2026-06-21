@@ -76,8 +76,16 @@ Create these in the Firebase Console if prompted.
 
 Place your Firebase service account key as `serviceAccountKey.json` in the project root (do not commit this file).
 
+Optionally copy `scripts/seedUsers.local.example.json` to `scripts/seedUsers.local.json` and add recovery emails by CAPID (local only — never commit real emails):
+
+```bash
+cp scripts/seedUsers.local.example.json scripts/seedUsers.local.json
+```
+
 ```bash
 npm run seed
+# or reset passwords on existing accounts:
+node scripts/seedUsers.js --reset-passwords
 ```
 
 This creates or repairs 23 squadron members in Firebase Auth and `contactUsers` profiles. Initial password for each user is their CAPID (same as username). Auth accounts use an internal `{capid}@tn170.local` email that is never displayed to users.
@@ -134,13 +142,18 @@ The `tn170-contact-directory` Firebase project provides Authentication and Fires
 - Internally, CAPID is converted to `{capid}@tn170.local` for Firebase Auth; users never see this
 - Users must change password on first login when `mustChangePassword` is `true`
 - Password requirements: minimum 8 characters, cannot equal CAPID
-- Forgot password: contact squadron leadership (no automated reset)
+- Forgot password: enter CAPID + recovery email; reset link is sent to the recovery email (not the internal auth email)
+- Recovery email: set during first login if missing, or updated anytime from Dashboard account settings
 
 ## Firestore Collections
 
 ### `contactUsers/{uid}`
 
-User profiles for contact directory access. Visible identity: CAPID and displayName. Internal-only field: `internalAuthEmail` (Firebase Auth email, never displayed). Also includes name parts, isActive, mustChangePassword.
+User profiles for contact directory access. Visible identity: CAPID and displayName. Internal-only field: `internalAuthEmail` (Firebase Auth email, never displayed). Recovery email fields: `recoveryEmail`, `recoveryEmailVerified`, `recoveryEmailUpdatedAt`. Also includes name parts, isActive, mustChangePassword.
+
+### `contactUserLookup/{capid}`
+
+Server-only lookup index for password reset (CAPID → uid, recovery email). Not readable or writable by clients.
 
 ### `contacts/{contactId}`
 

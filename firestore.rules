@@ -30,6 +30,10 @@ service cloud.firestore {
         && request.resource.data.mustChangePassword == false;
     }
 
+    match /contactUserLookup/{capid} {
+      allow read, write: if false;
+    }
+
     match /contacts/{contactId} {
       allow read: if isActiveUser() && (
         resource.data.visibility == 'shared'
