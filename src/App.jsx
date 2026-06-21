@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import PasswordChange from './components/PasswordChange';
@@ -93,12 +93,12 @@ function LoginRoute() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || undefined}>
+      <HashRouter>
         <Routes>
           <Route path="/login" element={<LoginRoute />} />
           <Route path="/*" element={<AuthenticatedApp />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }

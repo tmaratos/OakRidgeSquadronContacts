@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -33,8 +33,6 @@ jobs:
       - name: Build for GitHub Pages
         run: npm run build
         env:
-          # Firebase config comes from committed .env.production (public web config).
-          # Do NOT pass empty GitHub secrets here — Vite would override .env.production with blanks.
           VITE_BASE_PATH: /OakRidgeSquadronContacts/
 
       - name: Add SPA fallback and disable Jekyll
@@ -46,6 +44,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+      - name: Deploy to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+          clean: true
+          single-commit: true
 
   deploy:
     needs: build
