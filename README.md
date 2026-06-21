@@ -2,7 +2,10 @@
 
 A Firebase-backed contact management web application for Oak Ridge Composite Squadron TN-170 (Civil Air Patrol).
 
-**Firebase Project:** `tn170-contact-directory` (TN-170 Contact Directory)  
+**Live app:** https://tmaratos.github.io/OakRidgeSquadronContacts/  
+**Login:** https://tmaratos.github.io/OakRidgeSquadronContacts/#/login
+
+**Firebase backend:** `tn170-contact-directory` (Authentication + Firestore — not a public app URL)  
 **GitHub:** OakRidgeSquadronContacts
 
 This contact directory uses its own dedicated Firebase project with Firestore collections (`contactUsers`, `contacts`), separate from the attendance tracker.
@@ -22,8 +25,8 @@ This contact directory uses its own dedicated Firebase project with Firestore co
 ## Tech Stack
 
 - React + Vite
-- Firebase Authentication + Firestore
-- Firebase Hosting
+- Firebase Authentication + Firestore (backend)
+- GitHub Pages (production hosting)
 
 ## Setup
 
@@ -35,7 +38,7 @@ npm install
 
 ### 2. Configure Firebase
 
-Create or select the **TN-170 Contact Directory** Firebase project (`tn170-contact-directory`) in the [Firebase Console](https://console.firebase.google.com/). Enable Authentication (Email/Password), Firestore, and Hosting.
+Create or select the **TN-170 Contact Directory** Firebase project (`tn170-contact-directory`) in the [Firebase Console](https://console.firebase.google.com/). Enable Authentication (Email/Password) and Firestore.
 
 Copy `.env.example` to `.env.local` and fill in your Firebase web app config from:
 
@@ -87,16 +90,25 @@ npm run dev
 
 ### 7. Build for production
 
+GitHub Pages builds use the project subpath. Set `VITE_BASE_PATH` when building locally to match production:
+
 ```bash
-npm run build
-firebase deploy --only hosting
+VITE_BASE_PATH=/OakRidgeSquadronContacts/ npm run build
 ```
 
-### 8. GitHub Pages
+Preview the production build locally:
+
+```bash
+VITE_BASE_PATH=/OakRidgeSquadronContacts/ npm run preview
+```
+
+### 8. Deploy to GitHub Pages (production)
 
 The app deploys automatically to GitHub Pages on push to `main` via `.github/workflows/deploy.yml`.
 
-**Live URL:** https://tmaratos.github.io/OakRidgeSquadronContacts/
+**Canonical URL:** https://tmaratos.github.io/OakRidgeSquadronContacts/
+
+The app uses `HashRouter`, so routes appear after `#` (for example, `#/login`).
 
 Before the first deploy succeeds, configure in the GitHub repo:
 
@@ -109,7 +121,11 @@ Before the first deploy succeeds, configure in the GitHub repo:
    - `VITE_FIREBASE_MESSAGING_SENDER_ID`
    - `VITE_FIREBASE_APP_ID`
 
-Firebase Hosting (`tn170-contact-directory.web.app`) uses the same build without `VITE_BASE_PATH` (defaults to `/`).
+### Firebase project vs. hosting
+
+The `tn170-contact-directory` Firebase project provides Authentication and Firestore only. **GitHub Pages is the sole public URL** for the contact directory.
+
+`firebase.json` retains an optional Hosting configuration (useful for local experiments). **`firebase deploy --only hosting` is not the production deploy path** — use the GitHub Actions workflow above.
 
 ## Authentication
 

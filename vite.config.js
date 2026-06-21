@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Use VITE_BASE_PATH=/OakRidgeSquadronContacts/ for GitHub Pages; defaults to / for Firebase Hosting
+  // Production (GitHub Pages): VITE_BASE_PATH=/OakRidgeSquadronContacts/ — defaults to / for local dev
   base: process.env.VITE_BASE_PATH || '/',
 });
