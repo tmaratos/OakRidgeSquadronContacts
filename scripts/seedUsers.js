@@ -9,7 +9,7 @@ const rootDir = join(__dirname, '..');
 
 const keyPaths = [
   join(rootDir, 'serviceAccountKey.json'),
-  join(rootDir, 'tn170-attendance-service-account.json'),
+  join(rootDir, 'tn170-contact-directory-service-account.json'),
 ];
 
 function findServiceAccount() {
@@ -31,7 +31,7 @@ if (!serviceAccount) {
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  projectId: 'tn170-attendance',
+  projectId: serviceAccount.project_id || 'tn170-contact-directory',
 });
 
 const auth = admin.auth();
@@ -83,8 +83,8 @@ async function seedUser(user) {
 
 async function main() {
   console.log(`Seeding ${seedUsers.length} contact directory users...`);
-  console.log('Project: tn170-attendance');
-  console.log('Collection: contactUsers (separate from attendance tracker)\n');
+  console.log('Project: tn170-contact-directory');
+  console.log('Collection: contactUsers\n');
 
   for (const user of seedUsers) {
     await seedUser(user);

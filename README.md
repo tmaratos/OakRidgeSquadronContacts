@@ -2,10 +2,10 @@
 
 A Firebase-backed contact management web application for Oak Ridge Composite Squadron TN-170 (Civil Air Patrol).
 
-**Firebase Project:** `tn170-attendance` (TN-170 Attendance Tracker)  
+**Firebase Project:** `tn170-contact-directory` (TN-170 Contact Directory)  
 **GitHub:** OakRidgeSquadronContacts
 
-This contact directory uses dedicated Firestore collections (`contactUsers`, `contacts`) and does not interfere with the attendance tracker data.
+This contact directory uses its own dedicated Firebase project with Firestore collections (`contactUsers`, `contacts`), separate from the attendance tracker.
 
 ## Features
 
@@ -33,6 +33,8 @@ npm install
 
 ### 2. Configure Firebase
 
+Create or select the **TN-170 Contact Directory** Firebase project (`tn170-contact-directory`) in the [Firebase Console](https://console.firebase.google.com/). Enable Authentication (Email/Password), Firestore, and Hosting.
+
 Copy `.env.example` to `.env.local` and fill in your Firebase web app config from:
 
 **Firebase Console → Project Settings → General → Your apps → Web app**
@@ -45,7 +47,7 @@ Required variables:
 
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_PROJECT_ID` (should be `tn170-attendance`)
+- `VITE_FIREBASE_PROJECT_ID` (should be `tn170-contact-directory`)
 - `VITE_FIREBASE_STORAGE_BUCKET`
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
