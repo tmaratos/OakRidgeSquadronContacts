@@ -4,6 +4,10 @@ import { dirname, join } from 'path';
 import admin from 'firebase-admin';
 import { seedUsers } from '../src/data/seedUsers.js';
 
+function capidToEmail(capid) {
+  return `${String(capid).trim()}@tn170.local`;
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
 
@@ -36,16 +40,25 @@ admin.initializeApp({
 
 const auth = admin.auth();
 const db = admin.firestore();
+const { FieldValue } = admin.firestore;
 
 async function seedUser(user) {
+  const internalAuthEmail = user.internalAuthEmail || capidToEmail(user.capid);
   let authUser;
+
   try {
-    authUser = await auth.getUserByEmail(user.emailLogin);
+    authUser = await auth.getUserByEmail(internalAuthEmail);
     console.log(`Auth user exists: ${user.capid} (${authUser.uid})`);
+    await auth.updateUser(authUser.uid, {
+      password: user.capid,
+      displayName: user.displayName,
+      emailVerified: true,
+    });
+    console.log(`Repaired auth password for: ${user.capid}`);
   } catch (err) {
     if (err.code !== 'auth/user-not-found') throw err;
     authUser = await auth.createUser({
-      email: user.emailLogin,
+      email: internalAuthEmail,
       password: user.capid,
       displayName: user.displayName,
       emailVerified: true,
@@ -63,18 +76,19 @@ async function seedUser(user) {
     lastName: user.lastName,
     suffix: user.suffix || '',
     displayName: user.displayName,
-    emailLogin: user.emailLogin,
+    internalAuthEmail,
     isActive: user.isActive,
     mustChangePassword: user.mustChangePassword,
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+    emailLogin: FieldValue.delete(),
   };
 
   if (!existing.exists) {
-    profileData.createdAt = admin.firestore.FieldValue.serverTimestamp();
+    profileData.createdAt = FieldValue.serverTimestamp();
     await profileRef.set(profileData);
     console.log(`Created contactUsers profile: ${user.capid}`);
   } else {
-    await profileRef.update(profileData);
+    await profileRef.set(profileData, { merge: true });
     console.log(`Updated contactUsers profile: ${user.capid}`);
   }
 

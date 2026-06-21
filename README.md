@@ -12,7 +12,7 @@ This contact directory uses its own dedicated Firebase project with Firestore co
 
 ## Features
 
-- CAPID-based login (internal email `{capid}@tn170.local`)
+- CAPID-based login (CAPID + password; internal auth email is never shown in the UI)
 - Forced password change on first login
 - Private and shared squadron contacts
 - Multiple emails and phones with primary star selection
@@ -80,7 +80,7 @@ Place your Firebase service account key as `serviceAccountKey.json` in the proje
 npm run seed
 ```
 
-This creates 23 squadron members in Firebase Auth and `contactUsers` profiles. Initial password for each user is their CAPID.
+This creates or repairs 23 squadron members in Firebase Auth and `contactUsers` profiles. Initial password for each user is their CAPID (same as username). Auth accounts use an internal `{capid}@tn170.local` email that is never displayed to users.
 
 ### 6. Run locally
 
@@ -129,17 +129,18 @@ The `tn170-contact-directory` Firebase project provides Authentication and Fires
 
 ## Authentication
 
-- **Username:** CAPID (numeric)
-- **Initial password:** CAPID
+- **Sign in with CAPID and password** — form labels are CAPID and Password only (no email login in the UI)
+- **Initial password:** same as CAPID (e.g. `729204` / `729204`)
+- Internally, CAPID is converted to `{capid}@tn170.local` for Firebase Auth; users never see this
 - Users must change password on first login when `mustChangePassword` is `true`
 - Password requirements: minimum 8 characters, cannot equal CAPID
-- Forgot password: contact squadron leadership (no automated email reset)
+- Forgot password: contact squadron leadership (no automated reset)
 
 ## Firestore Collections
 
 ### `contactUsers/{uid}`
 
-User profiles for contact directory access. Fields include CAPID, name parts, displayName, emailLogin, isActive, mustChangePassword.
+User profiles for contact directory access. Visible identity: CAPID and displayName. Internal-only field: `internalAuthEmail` (Firebase Auth email, never displayed). Also includes name parts, isActive, mustChangePassword.
 
 ### `contacts/{contactId}`
 

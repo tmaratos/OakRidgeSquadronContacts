@@ -11,8 +11,13 @@ export function capidToEmail(capid) {
 
 export async function loginWithCapid(capid, password) {
   const email = capidToEmail(capid);
-  const credential = await signInWithEmailAndPassword(auth, email, password);
-  return credential.user;
+  try {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    return credential.user;
+  } catch (err) {
+    console.error('Firebase Auth login error:', err.code);
+    throw err;
+  }
 }
 
 export async function logout() {

@@ -51,7 +51,7 @@ function parseUserLine(line) {
     lastName,
     suffix,
     displayName,
-    emailLogin: `${capid}@tn170.local`,
+    internalAuthEmail: `${capid}@tn170.local`,
     isActive: true,
     mustChangePassword: true,
   };
