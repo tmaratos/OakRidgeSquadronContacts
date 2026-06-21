@@ -1,0 +1,251 @@
+:root {
+  --navy: #0f1c2e;
+  --navy-light: #1a2d47;
+  --charcoal: #2a3441;
+  --gold: #c9a227;
+  --gold-hover: #dbb84a;
+  --blue-accent: #3d7ab8;
+  --blue-light: #5a9fd4;
+  --card-bg: #f4f6f9;
+  --card-border: #d8dee8;
+  --text-primary: #1a2332;
+  --text-secondary: #5a6578;
+  --text-on-dark: #e8ecf2;
+  --danger: #c0392b;
+  --success: #27ae60;
+  --radius: 8px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--navy);
+  color: var(--text-on-dark);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--blue-light);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+  color: var(--text-on-dark);
+}
+
+.page-subtitle {
+  margin: 0 0 1.5rem;
+  color: #a8b4c4;
+  font-size: 0.95rem;
+}
+
+.card {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--card-border);
+  padding: 1.25rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--gold-hover);
+}
+
+.btn-secondary {
+  background: var(--navy-light);
+  color: var(--text-on-dark);
+  border: 1px solid #3d5068;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--charcoal);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #a93226;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--blue-accent);
+  border: 1px solid var(--blue-accent);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: rgba(61, 122, 184, 0.1);
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: 2px solid var(--blue-accent);
+  outline-offset: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.error-message {
+  color: var(--danger);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.success-message {
+  color: var(--success);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: var(--text-on-dark);
+  font-size: 1.1rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-shared {
+  background: rgba(61, 122, 184, 0.15);
+  color: var(--blue-accent);
+}
+
+.badge-private {
+  background: rgba(90, 101, 120, 0.15);
+  color: var(--text-secondary);
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  padding: 0.15rem 0.35rem;
+  line-height: 1;
+  color: #bbb;
+}
+
+.star-btn.active {
+  color: var(--gold);
+}
+
+.star-btn:hover {
+  color: var(--gold-hover);
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+}

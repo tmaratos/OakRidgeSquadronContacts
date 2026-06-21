@@ -1,0 +1,62 @@
+.contact-table-wrap {
+  overflow-x: auto;
+}
+
+.contact-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.contact-table th,
+.contact-table td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.contact-table th {
+  background: #e8ecf2;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.contact-table tbody tr:hover {
+  background: rgba(61, 122, 184, 0.05);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--blue-accent);
+  font-weight: 600;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.actions-cell .btn {
+  margin-right: 0.35rem;
+}
+
+.empty-message {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .contact-table {
+    font-size: 0.8rem;
+  }
+
+  .contact-table th,
+  .contact-table td {
+    padding: 0.5rem;
+  }
+}

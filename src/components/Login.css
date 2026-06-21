@@ -1,0 +1,85 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: linear-gradient(160deg, var(--navy) 0%, #162840 50%, var(--charcoal) 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.login-logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.login-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.login-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.forgot-link {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  background: none;
+  border: none;
+  color: var(--blue-accent);
+  font-size: 0.9rem;
+  text-decoration: underline;
+  padding: 0.5rem;
+}
+
+.forgot-link:hover {
+  color: var(--blue-light);
+}
+
+.forgot-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.forgot-modal {
+  max-width: 440px;
+  width: 100%;
+}
+
+.forgot-modal h2 {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+
+.forgot-modal p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+}

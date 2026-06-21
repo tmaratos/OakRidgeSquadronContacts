@@ -1,0 +1,56 @@
+.contact-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.contact-org {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+}
+
+.contact-card-details p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.contact-card-actions {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.contact-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 769px) {
+  .mobile-cards-only {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-table-only {
+    display: none;
+  }
+}
