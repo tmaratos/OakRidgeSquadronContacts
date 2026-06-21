@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { updateRecoveryEmail } from '../services/passwordResetService';
+import { updateRecoveryEmail } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
 import './RecoveryEmailSettings.css';
 

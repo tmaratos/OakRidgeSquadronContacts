@@ -2,10 +2,7 @@ import { NavLink } from 'react-router-dom';
 import './MobileNav.css';
 
 const TABS = [
-  { to: '/search', label: 'Search', icon: '🔍' },
-  { to: '/contacts', label: 'Contacts', icon: '👥' },
-  { to: '/add', label: 'Add', icon: '➕' },
-  { to: '/organizations', label: 'Orgs', icon: '🏢' },
+  { to: '/directory', label: 'Directory', icon: '📇' },
   { to: '/account', label: 'Account', icon: '⚙️' },
 ];
 

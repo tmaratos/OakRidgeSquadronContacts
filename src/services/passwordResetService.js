@@ -15,11 +15,3 @@ export async function requestPasswordReset(capid, recoveryEmail) {
   return result.data?.message || GENERIC_RESET_MESSAGE;
 }
 
-export async function updateRecoveryEmail(recoveryEmail) {
-  if (!functions) {
-    throw new Error('Firebase is not initialized.');
-  }
-  const callable = httpsCallable(functions, 'updateRecoveryEmail');
-  const result = await callable({ recoveryEmail });
-  return result.data;
-}

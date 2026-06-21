@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { changePassword } from '../services/authService';
 import { clearMustChangePassword } from '../services/userService';
-import { updateRecoveryEmail } from '../services/passwordResetService';
+import { updateRecoveryEmail } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
 import './PasswordChange.css';
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
@@ -7,11 +7,13 @@ import PasswordChange from './components/PasswordChange';
 import AppHeader from './components/AppHeader';
 import AppFooter from './components/AppFooter';
 import MobileNav from './components/MobileNav';
-import SearchScreen from './components/SearchScreen';
-import Contacts from './components/Contacts';
-import AddContact from './components/AddContact';
-import Organizations from './components/Organizations';
+import Directory from './components/Directory';
 import Account from './components/Account';
+import FloatingActionButton from './components/FloatingActionButton';
+import QuickActionSheet from './components/QuickActionSheet';
+import ContactFormSheet from './components/ContactFormSheet';
+import ImportContacts from './components/ImportContacts';
+import { createContact } from './services/contactService';
 import './components/Login.css';
 
 function PublicShell({ children }) {
@@ -25,6 +27,20 @@ function PublicShell({ children }) {
 
 function AuthenticatedApp() {
   const { user, profile, loading } = useAuth();
+  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+  const [showAddContact, setShowAddContact] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const refreshDirectoryRef = useRef(null);
+
+  const handleDirectoryRefresh = useCallback((refreshFn) => {
+    refreshDirectoryRef.current = refreshFn;
+  }, []);
+
+  const handleCreateContact = async (formData) => {
+    await createContact(formData, { uid: user.uid, profile });
+    setShowAddContact(false);
+    await refreshDirectoryRef.current?.();
+  };
 
   if (loading) {
     return <div className="loading-screen">Loading…</div>;
@@ -66,18 +82,38 @@ function AuthenticatedApp() {
       <AppHeader />
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Navigate to="/search" replace />} />
-          <Route path="/search" element={<SearchScreen />} />
-          <Route path="/contacts" element={<Contacts />} />
-          <Route path="/add" element={<AddContact />} />
-          <Route path="/organizations" element={<Organizations />} />
+          <Route path="/" element={<Navigate to="/directory" replace />} />
+          <Route
+            path="/directory"
+            element={<Directory onContactsChanged={handleDirectoryRefresh} />}
+          />
           <Route path="/account" element={<Account />} />
           <Route path="/password-change" element={<PasswordChange />} />
-          <Route path="*" element={<Navigate to="/search" replace />} />
+          <Route path="*" element={<Navigate to="/directory" replace />} />
         </Routes>
       </main>
       <AppFooter />
       <MobileNav />
+      <FloatingActionButton onClick={() => setQuickActionsOpen(true)} />
+      <QuickActionSheet
+        open={quickActionsOpen}
+        onClose={() => setQuickActionsOpen(false)}
+        onAddContact={() => setShowAddContact(true)}
+        onImportContacts={() => setShowImport(true)}
+      />
+      {showAddContact && (
+        <ContactFormSheet
+          title="Add Contact"
+          onSubmit={handleCreateContact}
+          onClose={() => setShowAddContact(false)}
+          submitLabel="Create Contact"
+        />
+      )}
+      <ImportContacts
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        onImported={() => refreshDirectoryRef.current?.()}
+      />
     </div>
   );
 }
@@ -91,7 +127,7 @@ function LoginRoute() {
   }
 
   if (user && profile?.isActive && !profile?.mustChangePassword) {
-    return <Navigate to="/search" replace />;
+    return <Navigate to="/directory" replace />;
   }
 
   if (user && profile?.mustChangePassword) {

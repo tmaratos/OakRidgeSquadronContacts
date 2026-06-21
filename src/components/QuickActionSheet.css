@@ -1,0 +1,85 @@
+.quick-action-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+.quick-action-sheet {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 1rem 1.25rem 1.5rem;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.quick-action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.quick-action-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.quick-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text-primary);
+  min-height: 56px;
+  cursor: pointer;
+}
+
+.quick-action-item:hover {
+  border-color: var(--gold);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.quick-action-item strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.quick-action-item small {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+.quick-action-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 769px) {
+  .quick-action-overlay {
+    align-items: center;
+  }
+
+  .quick-action-sheet {
+    border-radius: var(--radius);
+  }
+}

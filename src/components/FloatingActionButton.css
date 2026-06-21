@@ -1,0 +1,31 @@
+.fab {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  z-index: 150;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  transition: background 0.15s, transform 0.15s;
+}
+
+.fab:hover {
+  background: var(--gold-hover);
+  transform: scale(1.05);
+}
+
+@media (min-width: 769px) {
+  .fab {
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}

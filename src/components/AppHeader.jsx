@@ -3,10 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import './AppHeader.css';
 
 const DESKTOP_NAV = [
-  { to: '/search', label: 'Search' },
-  { to: '/contacts', label: 'Contacts' },
-  { to: '/add', label: 'Add' },
-  { to: '/organizations', label: 'Organizations' },
+  { to: '/directory', label: 'Directory' },
   { to: '/account', label: 'Account' },
 ];
 

@@ -1,0 +1,61 @@
+.contact-form-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 400;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0;
+}
+
+.contact-form-sheet {
+  width: 100%;
+  max-width: 640px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem 0;
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  z-index: 1;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.contact-form-sheet-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.contact-form-sheet .contact-form {
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  flex: 1;
+}
+
+.contact-form-sheet .contact-form h2 {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .contact-form-sheet-overlay {
+    align-items: center;
+    padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  }
+
+  .contact-form-sheet {
+    max-height: 90vh;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+}
