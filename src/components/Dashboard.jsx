@@ -11,6 +11,7 @@ import { computeOrganizationStats } from '../utils/searchUtils';
 import GlobalSearchBar from './GlobalSearchBar';
 import ContactTable from './ContactTable';
 import ContactDetailsModal from './ContactDetailsModal';
+import ImportContacts, { ImportContactsButton } from './ImportContacts';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const [visibleContacts, setVisibleContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [viewContact, setViewContact] = useState(null);
+  const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     async function loadStats() {
@@ -155,6 +157,7 @@ export default function Dashboard() {
           <Link to="/my-contacts?new=1" className="btn btn-primary">
             Add Contact
           </Link>
+          <ImportContactsButton onClick={() => setShowImport(true)} className="btn btn-primary" />
           <Link to="/organizations" className="btn btn-primary">
             View Organizations
           </Link>
@@ -174,6 +177,8 @@ export default function Dashboard() {
           canEdit={viewContact.ownerUid === user.uid}
         />
       )}
+
+      <ImportContacts open={showImport} onClose={() => setShowImport(false)} />
     </div>
   );
 }

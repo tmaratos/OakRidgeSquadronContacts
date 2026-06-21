@@ -33,9 +33,12 @@ export function buildContactSearchText(contact) {
     contact.status,
     contact.visibility,
     contact.ownerDisplayName,
+    contact.ownerCapid,
     contact.sharedBy,
     contact.preferredContactMethod,
     PREFERRED_METHOD_LABELS[contact.preferredContactMethod],
+    contact.isPinned ? 'pinned' : '',
+    contact.source,
   ];
 
   (contact.emails || []).forEach((e) => {

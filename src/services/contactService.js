@@ -9,6 +9,7 @@ import {
   where,
   serverTimestamp,
   orderBy,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import {
@@ -194,12 +195,13 @@ function enrichContactPayload(data) {
   return enriched;
 }
 
-export async function createContact(data, user) {
+function buildCreatePayload(data, user) {
   const payload = {
     ...enrichContactPayload(data),
     ownerUid: user.uid,
     ownerCapid: user.profile.capid,
     ownerDisplayName: user.profile.displayName,
+    isPinned: Boolean(data.isPinned),
     createdAt: serverTimestamp(),
     createdBy: user.uid,
     updatedAt: serverTimestamp(),
@@ -209,8 +211,35 @@ export async function createContact(data, user) {
     payload.sharedBy = user.profile.displayName;
     payload.sharedAt = serverTimestamp();
   }
+  return payload;
+}
+
+export async function createContact(data, user) {
+  const payload = buildCreatePayload(data, user);
   const ref = await addDoc(collection(db, 'contacts'), payload);
   return ref.id;
+}
+
+export async function importContactsBatch(contacts, user) {
+  if (!contacts?.length) return [];
+
+  const BATCH_LIMIT = 450;
+  const ids = [];
+
+  for (let i = 0; i < contacts.length; i += BATCH_LIMIT) {
+    const chunk = contacts.slice(i, i + BATCH_LIMIT);
+    const batch = writeBatch(db);
+
+    chunk.forEach((data) => {
+      const ref = doc(collection(db, 'contacts'));
+      batch.set(ref, buildCreatePayload(data, user));
+      ids.push(ref.id);
+    });
+
+    await batch.commit();
+  }
+
+  return ids;
 }
 
 export async function updateContact(contactId, data, user, existing) {

@@ -12,6 +12,7 @@ import ContactTable from './ContactTable';
 import ContactCard from './ContactCard';
 import ContactForm from './ContactForm';
 import ContactDetailsModal from './ContactDetailsModal';
+import ImportContacts, { ImportContactsButton } from './ImportContacts';
 import './ContactCard.css';
 import './pages.css';
 
@@ -23,6 +24,7 @@ export default function SharedContacts() {
   const [filters, setFilters] = useState(emptyFilters);
   const [viewContact, setViewContact] = useState(null);
   const [editContact, setEditContact] = useState(null);
+  const [showImport, setShowImport] = useState(false);
 
   const loadContacts = useCallback(async () => {
     setLoading(true);
@@ -78,8 +80,13 @@ export default function SharedContacts() {
 
   return (
     <div>
-      <h1 className="page-title">Shared Contacts</h1>
-      <p className="page-subtitle">Contacts shared across Oak Ridge Composite Squadron TN-170</p>
+      <div className="page-header-row">
+        <div>
+          <h1 className="page-title">Shared Contacts</h1>
+          <p className="page-subtitle">Contacts shared across Oak Ridge Composite Squadron TN-170</p>
+        </div>
+        <ImportContactsButton onClick={() => setShowImport(true)} />
+      </div>
 
       <ContactFilters
         search={search}
@@ -88,6 +95,7 @@ export default function SharedContacts() {
         onFiltersChange={setFilters}
         organizations={organizations}
         showVisibilityFilter={false}
+        onImport={() => setShowImport(true)}
       />
 
       {loading ? (
@@ -133,6 +141,12 @@ export default function SharedContacts() {
           }
         />
       )}
+
+      <ImportContacts
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        onImported={loadContacts}
+      />
     </div>
   );
 }

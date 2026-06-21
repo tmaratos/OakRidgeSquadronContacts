@@ -15,6 +15,7 @@ import ContactTable from './ContactTable';
 import ContactCard from './ContactCard';
 import ContactForm from './ContactForm';
 import ContactDetailsModal from './ContactDetailsModal';
+import ImportContacts, { ImportContactsButton } from './ImportContacts';
 import './ContactCard.css';
 import './pages.css';
 
@@ -28,6 +29,7 @@ export default function MyContacts() {
   const [viewContact, setViewContact] = useState(null);
   const [editContact, setEditContact] = useState(null);
   const [showForm, setShowForm] = useState(searchParams.get('new') === '1');
+  const [showImport, setShowImport] = useState(false);
 
   const loadContacts = useCallback(async () => {
     setLoading(true);
@@ -115,9 +117,12 @@ export default function MyContacts() {
           <h1 className="page-title">My Contacts</h1>
           <p className="page-subtitle">Manage your private and shared contacts</p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={() => setShowForm(true)}>
-          Add Contact
-        </button>
+        <div className="page-header-actions">
+          <ImportContactsButton onClick={() => setShowImport(true)} />
+          <button type="button" className="btn btn-primary" onClick={() => setShowForm(true)}>
+            Add Contact
+          </button>
+        </div>
       </div>
 
       <ContactFilters
@@ -126,6 +131,7 @@ export default function MyContacts() {
         filters={filters}
         onFiltersChange={setFilters}
         organizations={organizations}
+        onImport={() => setShowImport(true)}
       />
 
       {loading ? (
@@ -166,6 +172,12 @@ export default function MyContacts() {
           }}
         />
       )}
+
+      <ImportContacts
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        onImported={loadContacts}
+      />
     </div>
   );
 }

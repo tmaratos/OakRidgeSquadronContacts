@@ -145,9 +145,21 @@ Contact records with visibility `private` or `shared`. Includes name, organizati
 - Create/update/delete restricted to contact owner
 - `ownerUid` cannot be changed after creation
 
-## Import
+## Import Contacts
 
-Business card / CSV import is planned — button is disabled with "Coming soon".
+Import contacts into your own account from:
+
+- **vCard** (`.vcf`, `.vcard`) — built-in parser for FN, N, ORG, TITLE, EMAIL, TEL, URL, ADR, and NOTE
+- **CSV** — auto-detects common column names (Name, Email, Phone, Organization, etc.)
+- **Device Contact Picker** — when supported by the browser (Contact Picker API; primarily mobile Chrome)
+
+Import flow: choose method → select file or device contacts → preview with selectable rows → set visibility (default **private**) → confirm import.
+
+Before importing with **shared** visibility, you must confirm: *"You are about to share these contacts with the squadron. Only import contacts you are allowed to share."*
+
+Duplicate detection warns when an imported contact matches an existing email, phone, or name+organization (does not block import).
+
+Imported contacts default to private visibility with category **Community / Strategic**, contact type **Individual**, status **Active**, and tag **imported**.
 
 ## Logos
 

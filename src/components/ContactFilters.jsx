@@ -7,6 +7,7 @@ import {
   STATUS_OPTIONS,
 } from '../services/contactService';
 import GlobalSearchBar from './GlobalSearchBar';
+import { ImportContactsButton } from './ImportContacts';
 import './ContactFilters.css';
 
 const emptyFilters = {
@@ -25,6 +26,7 @@ export default function ContactFilters({
   onFiltersChange,
   organizations = [],
   showVisibilityFilter = true,
+  onImport,
 }) {
   const [showFilters, setShowFilters] = useState(false);
 
@@ -46,6 +48,7 @@ export default function ContactFilters({
       <GlobalSearchBar value={search} onChange={onSearchChange} />
 
       <div className="filters-top">
+        {onImport && <ImportContactsButton onClick={onImport} />}
         <button
           type="button"
           className="btn btn-secondary btn-sm"
