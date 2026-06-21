@@ -36,6 +36,14 @@ function loadRecoveryEmails() {
   }
   const raw = JSON.parse(readFileSync(localRecoveryPath, 'utf8'));
   const map = {};
+  if (Array.isArray(raw)) {
+    for (const entry of raw) {
+      if (!entry?.capid) continue;
+      const email = entry.recoveryEmail ?? entry.email ?? '';
+      map[String(entry.capid).trim()] = String(email).trim().toLowerCase();
+    }
+    return map;
+  }
   for (const [capid, email] of Object.entries(raw)) {
     map[String(capid).trim()] = String(email).trim().toLowerCase();
   }
