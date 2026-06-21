@@ -5,11 +5,21 @@ import Login from './components/Login';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
 import PasswordChange from './components/PasswordChange';
 import AppHeader from './components/AppHeader';
+import AppFooter from './components/AppFooter';
 import Dashboard from './components/Dashboard';
 import MyContacts from './components/MyContacts';
 import SharedContacts from './components/SharedContacts';
 import Organizations from './components/Organizations';
 import './components/Login.css';
+
+function PublicShell({ children }) {
+  return (
+    <div className="public-shell">
+      {children}
+      <AppFooter />
+    </div>
+  );
+}
 
 function AuthenticatedApp() {
   const { user, profile, loading } = useAuth();
@@ -31,7 +41,11 @@ function AuthenticatedApp() {
   }
 
   if (profile?.mustChangePassword) {
-    return <PasswordChange />;
+    return (
+      <PublicShell>
+        <PasswordChange />
+      </PublicShell>
+    );
   }
 
   return (
@@ -46,6 +60,7 @@ function AuthenticatedApp() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <AppFooter />
     </div>
   );
 }
@@ -63,14 +78,26 @@ function LoginRoute() {
   }
 
   if (user && profile?.mustChangePassword) {
-    return <PasswordChange />;
+    return (
+      <PublicShell>
+        <PasswordChange />
+      </PublicShell>
+    );
   }
 
   if (showForgot) {
-    return <ForgotPasswordForm onBack={() => setShowForgot(false)} />;
+    return (
+      <PublicShell>
+        <ForgotPasswordForm onBack={() => setShowForgot(false)} />
+      </PublicShell>
+    );
   }
 
-  return <Login onForgotPassword={() => setShowForgot(true)} />;
+  return (
+    <PublicShell>
+      <Login onForgotPassword={() => setShowForgot(true)} />
+    </PublicShell>
+  );
 }
 
 export default function App() {
