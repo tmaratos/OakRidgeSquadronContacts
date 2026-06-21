@@ -92,6 +92,25 @@ npm run build
 firebase deploy --only hosting
 ```
 
+### 8. GitHub Pages
+
+The app deploys automatically to GitHub Pages on push to `main` via `.github/workflows/deploy.yml`.
+
+**Live URL:** https://tmaratos.github.io/OakRidgeSquadronContacts/
+
+Before the first deploy succeeds, configure in the GitHub repo:
+
+1. **Settings → Pages → Build and deployment → Source:** GitHub Actions
+2. **Settings → Secrets and variables → Actions:** add these repository secrets (values from Firebase Console → Project Settings → Your apps → Web app):
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
+
+Firebase Hosting (`tn170-contact-directory.web.app`) uses the same build without `VITE_BASE_PATH` (defaults to `/`).
+
 ## Authentication
 
 - **Username:** CAPID (numeric)

@@ -93,7 +93,7 @@ function LoginRoute() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || undefined}>
         <Routes>
           <Route path="/login" element={<LoginRoute />} />
           <Route path="/*" element={<AuthenticatedApp />} />

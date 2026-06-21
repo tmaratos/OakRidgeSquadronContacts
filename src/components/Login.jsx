@@ -26,12 +26,12 @@ export default function Login({ onForgotPassword }) {
       <div className="login-card card">
         <div className="login-header">
           <img
-            src="/squadron-logo.svg"
+            src={`${import.meta.env.BASE_URL}squadron-logo.svg`}
             alt="Oak Ridge Composite Squadron TN-170"
             className="login-logo"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = '/squadron-logo.jpeg';
+              e.target.src = `${import.meta.env.BASE_URL}squadron-logo.jpeg`;
             }}
           />
           <h1>Contact Directory</h1>

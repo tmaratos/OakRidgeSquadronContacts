@@ -15,12 +15,12 @@ export default function AppHeader() {
       <div className="header-inner">
         <div className="header-brand">
           <img
-            src="/squadron-logo.svg"
+            src={`${import.meta.env.BASE_URL}squadron-logo.svg`}
             alt="TN-170"
             className="header-logo"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = '/squadron-logo.jpeg';
+              e.target.src = `${import.meta.env.BASE_URL}squadron-logo.jpeg`;
             }}
           />
           <div>
