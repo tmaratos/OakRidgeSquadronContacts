@@ -242,6 +242,71 @@
   font-size: 0.95rem;
 }
 
+.import-preview-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.import-preview-card {
+  padding: 1rem;
+  border: 2px solid var(--card-border);
+  transition: border-color 0.15s;
+}
+
+.import-preview-card.selected {
+  border-color: var(--blue-accent);
+}
+
+.import-card-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.import-card-org {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.import-card-meta {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.import-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.import-card-fields input,
+.import-card-fields select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  min-height: 44px;
+}
+
+.import-select-all {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+@media (min-width: 769px) {
+  .import-preview-cards {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .import-modal {
     max-height: calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));

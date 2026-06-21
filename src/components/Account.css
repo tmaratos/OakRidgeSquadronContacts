@@ -1,0 +1,27 @@
+.account-page {
+  padding-bottom: 0.5rem;
+}
+
+.account-info-card h2,
+.account-actions-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.account-info-card p {
+  margin: 0.35rem 0;
+}
+
+.account-section-desc {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.account-actions-card {
+  margin-top: 1rem;
+}
+
+.account-signout-btn {
+  width: 100%;
+}

@@ -6,10 +6,12 @@ import ForgotPasswordForm from './components/ForgotPasswordForm';
 import PasswordChange from './components/PasswordChange';
 import AppHeader from './components/AppHeader';
 import AppFooter from './components/AppFooter';
-import Dashboard from './components/Dashboard';
-import MyContacts from './components/MyContacts';
-import SharedContacts from './components/SharedContacts';
+import MobileNav from './components/MobileNav';
+import SearchScreen from './components/SearchScreen';
+import Contacts from './components/Contacts';
+import AddContact from './components/AddContact';
 import Organizations from './components/Organizations';
+import Account from './components/Account';
 import './components/Login.css';
 
 function PublicShell({ children }) {
@@ -32,7 +34,18 @@ function AuthenticatedApp() {
     return <Navigate to="/login" replace />;
   }
 
-  if (!profile?.isActive) {
+  if (!profile) {
+    return (
+      <div className="loading-screen">
+        <p>Unable to load your profile. Firestore may be unavailable.</p>
+        <p style={{ fontSize: '0.875rem', opacity: 0.7 }}>
+          Try refreshing, or sign out and sign in again.
+        </p>
+      </div>
+    );
+  }
+
+  if (!profile.isActive) {
     return (
       <div className="loading-screen">
         Your account is not active. Please contact squadron leadership.
@@ -40,7 +53,7 @@ function AuthenticatedApp() {
     );
   }
 
-  if (profile?.mustChangePassword) {
+  if (profile.mustChangePassword) {
     return (
       <PublicShell>
         <PasswordChange />
@@ -53,14 +66,18 @@ function AuthenticatedApp() {
       <AppHeader />
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/my-contacts" element={<MyContacts />} />
-          <Route path="/shared-contacts" element={<SharedContacts />} />
+          <Route path="/" element={<Navigate to="/search" replace />} />
+          <Route path="/search" element={<SearchScreen />} />
+          <Route path="/contacts" element={<Contacts />} />
+          <Route path="/add" element={<AddContact />} />
           <Route path="/organizations" element={<Organizations />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/password-change" element={<PasswordChange />} />
+          <Route path="*" element={<Navigate to="/search" replace />} />
         </Routes>
       </main>
       <AppFooter />
+      <MobileNav />
     </div>
   );
 }
@@ -74,7 +91,7 @@ function LoginRoute() {
   }
 
   if (user && profile?.isActive && !profile?.mustChangePassword) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/search" replace />;
   }
 
   if (user && profile?.mustChangePassword) {

@@ -20,7 +20,12 @@ export function AuthProvider({ children }) {
       auth,
       async (firebaseUser) => {
         if (firebaseUser) {
-          const userProfile = await getContactUserProfile(firebaseUser.uid);
+          let userProfile = null;
+          try {
+            userProfile = await getContactUserProfile(firebaseUser.uid);
+          } catch (err) {
+            console.error('Failed to load user profile:', err);
+          }
           setUser(firebaseUser);
           setProfile(userProfile);
         } else {

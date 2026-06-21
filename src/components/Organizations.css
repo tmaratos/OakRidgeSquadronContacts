@@ -128,3 +128,49 @@
     font-size: 1rem;
   }
 }
+
+.org-search-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  background: var(--navy);
+}
+
+.org-contact-tappable {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.org-contact-tappable:hover {
+  border-color: var(--gold);
+}
+
+.org-contact-name {
+  font-weight: 600;
+  display: block;
+}
+
+.org-contact-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 769px) {
+  .org-search-sticky {
+    top: 60px;
+  }
+}

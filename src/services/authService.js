@@ -10,6 +10,7 @@ export function capidToEmail(capid) {
 }
 
 export async function loginWithCapid(capid, password) {
+  if (!auth) throw new Error('Authentication is not available');
   const email = capidToEmail(capid);
   try {
     const credential = await signInWithEmailAndPassword(auth, email, password);
@@ -21,7 +22,7 @@ export async function loginWithCapid(capid, password) {
 }
 
 export async function logout() {
-  await signOut(auth);
+  if (auth) await signOut(auth);
 }
 
 export async function changePassword(newPassword) {

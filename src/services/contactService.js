@@ -102,7 +102,7 @@ export function emptyContact() {
     state: '',
     zip: '',
     contactType: 'Individual',
-    category: 'Other',
+    category: 'Community / Strategic',
     status: 'Active',
     relationshipOwner: '',
     source: '',
@@ -148,7 +148,12 @@ export function setPrimaryPhone(phones, index) {
   return phones.map((p, i) => ({ ...p, isPrimary: i === index }));
 }
 
+function requireDb() {
+  if (!db) throw new Error('Firestore is not available');
+}
+
 export async function getMyContacts(ownerUid) {
+  requireDb();
   const q = query(
     collection(db, 'contacts'),
     where('ownerUid', '==', ownerUid),

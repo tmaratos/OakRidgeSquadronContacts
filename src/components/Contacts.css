@@ -1,0 +1,48 @@
+.contacts-page {
+  padding-bottom: 0.5rem;
+}
+
+.contacts-search-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  background: var(--navy);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-chip {
+  padding: 0.45rem 0.85rem;
+  min-height: 40px;
+  border: 1px solid #3d5068;
+  border-radius: 999px;
+  background: var(--navy-light);
+  color: var(--text-on-dark);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.filter-chip:hover {
+  border-color: var(--gold);
+}
+
+.filter-chip.active {
+  background: rgba(201, 162, 39, 0.2);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+@media (min-width: 769px) {
+  .contacts-search-sticky {
+    top: 60px;
+  }
+}

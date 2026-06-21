@@ -104,6 +104,50 @@
   font-style: italic;
 }
 
+.form-section.collapsible {
+  border-bottom: none;
+}
+
+.form-section-toggle {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--blue-accent);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.more-options {
+  margin-top: 0.75rem;
+}
+
+.array-section.compact h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--blue-accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  min-height: 44px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.form-row-top {
+  margin-top: 0;
+}
+
 @media (max-width: 768px) {
   .array-row {
     flex-direction: column;

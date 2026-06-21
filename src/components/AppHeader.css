@@ -44,10 +44,24 @@
   color: #a8b4c4;
 }
 
-.header-nav {
+.header-nav-desktop {
   display: flex;
   gap: 0.25rem;
   flex: 1;
+}
+
+@media (max-width: 768px) {
+  .header-nav-desktop {
+    display: none;
+  }
+
+  .header-user-desktop {
+    display: none;
+  }
+
+  .header-inner {
+    justify-content: space-between;
+  }
 }
 
 .nav-link {
@@ -134,50 +148,12 @@
   }
 
   .header-menu-toggle {
-    display: flex;
-  }
-
-  .header-user-desktop {
     display: none;
   }
 
   .header-nav {
     display: none;
-    flex-direction: column;
-    gap: 0.25rem;
-    flex: 1 1 100%;
-    width: 100%;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .header-nav.open {
-    display: flex;
-  }
-
-  .nav-link {
-    width: 100%;
-    padding: 0.75rem 1rem;
-  }
-
-  .header-user-mobile {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    margin-left: 0;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .header-user-mobile .btn {
-    width: 100%;
-    min-height: 44px;
-  }
-
-  .header-squadron {
-    font-size: 0.7rem;
   }
 }
+
+/* legacy rules removed - mobile uses bottom nav */

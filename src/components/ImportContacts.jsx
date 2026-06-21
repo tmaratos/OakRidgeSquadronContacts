@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
-  CATEGORIES,
-  CONTACT_TYPES,
-  PREFERRED_CONTACT_METHODS,
   VISIBILITY_OPTIONS,
   getVisibleContacts,
   importContactsBatch,
@@ -13,7 +10,6 @@ import {
   getPrimaryEmailValue,
   getPrimaryPhoneValue,
   isDeviceContactPickerSupported,
-  notesPreview,
   parseCSVFile,
   parseVCardFile,
   pickDeviceContacts,
@@ -352,8 +348,17 @@ export default function ImportContacts({ open, onClose, onImported }) {
             <>
               <div className="import-preview-toolbar">
                 <span className="selection-info">
-                  {selectedContacts.length} of {contacts.length} selected for import
+                  {selectedContacts.length} of {contacts.length} selected
                 </span>
+                <label className="import-select-all">
+                  <input
+                    type="checkbox"
+                    checked={contacts.length > 0 && contacts.every((c) => c.selected)}
+                    onChange={(e) => toggleSelectAll(e.target.checked)}
+                    aria-label="Select all contacts"
+                  />
+                  Select all
+                </label>
                 <div className="import-default-visibility">
                   <label htmlFor="default-visibility">Default visibility:</label>
                   <select
@@ -393,139 +398,56 @@ export default function ImportContacts({ open, onClose, onImported }) {
                 </div>
               )}
 
-              <div className="import-preview-table-wrap">
-                <table className="import-preview-table">
-                  <thead>
-                    <tr>
-                      <th className="col-check">
-                        <input
-                          type="checkbox"
-                          checked={contacts.length > 0 && contacts.every((c) => c.selected)}
-                          onChange={(e) => toggleSelectAll(e.target.checked)}
-                          aria-label="Select all contacts"
-                        />
-                      </th>
-                      <th>Name</th>
-                      <th>Organization</th>
-                      <th>Title</th>
-                      <th>Primary Email</th>
-                      <th>Primary Phone</th>
-                      <th>Preferred</th>
-                      <th>Notes</th>
-                      <th>Category</th>
-                      <th>Type</th>
-                      <th>Visibility</th>
-                      <th>Warnings</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {contacts.map((contact) => (
-                      <tr key={contact.importKey}>
-                        <td className="col-check">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(contact.selected)}
-                            onChange={() => toggleSelect(contact.importKey)}
-                            aria-label={`Select ${contact.name || 'contact'}`}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            value={contact.name}
-                            onChange={(e) => updateContact(contact.importKey, 'name', e.target.value)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            value={contact.organization}
-                            onChange={(e) =>
-                              updateContact(contact.importKey, 'organization', e.target.value)
-                            }
-                          />
-                          {!contact.organization.trim() && (
-                            <div className="import-org-missing">Organization missing</div>
-                          )}
-                        </td>
-                        <td>
-                          <input
-                            value={contact.title}
-                            onChange={(e) => updateContact(contact.importKey, 'title', e.target.value)}
-                          />
-                        </td>
-                        <td>{getPrimaryEmailValue(contact) || '—'}</td>
-                        <td>{getPrimaryPhoneValue(contact) || '—'}</td>
-                        <td>
-                          <select
-                            value={contact.preferredContactMethod}
-                            onChange={(e) =>
-                              updateContact(contact.importKey, 'preferredContactMethod', e.target.value)
-                            }
-                          >
-                            {PREFERRED_CONTACT_METHODS.map((m) => (
-                              <option key={m.value} value={m.value}>
-                                {m.label}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>{notesPreview(contact.notes)}</td>
-                        <td>
-                          <select
-                            value={contact.category}
-                            onChange={(e) => updateContact(contact.importKey, 'category', e.target.value)}
-                          >
-                            {CATEGORIES.map((c) => (
-                              <option key={c} value={c}>
-                                {c}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            value={contact.contactType}
-                            onChange={(e) =>
-                              updateContact(contact.importKey, 'contactType', e.target.value)
-                            }
-                          >
-                            {CONTACT_TYPES.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            value={contact.visibility}
-                            onChange={(e) =>
-                              updateContact(contact.importKey, 'visibility', e.target.value)
-                            }
-                          >
-                            {VISIBILITY_OPTIONS.map((v) => (
-                              <option key={v.value} value={v.value}>
-                                {v.label}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          {contact.duplicateWarnings?.length > 0 && (
-                            <span className="import-duplicate">
-                              Possible duplicate found
-                              {contact.duplicateWarnings.map((w) => (
-                                <span key={w.existingId}>
-                                  {' '}
-                                  ({w.reason}: {w.existingName})
-                                </span>
-                              ))}
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="import-preview-cards">
+                {contacts.map((contact) => (
+                  <div
+                    key={contact.importKey}
+                    className={`import-preview-card card ${contact.selected ? 'selected' : ''}`}
+                  >
+                    <label className="import-card-check">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(contact.selected)}
+                        onChange={() => toggleSelect(contact.importKey)}
+                        aria-label={`Select ${contact.name || 'contact'}`}
+                      />
+                      <span className="import-card-name">{contact.name || 'Unnamed'}</span>
+                    </label>
+                    {contact.organization && (
+                      <p className="import-card-org">{contact.organization}</p>
+                    )}
+                    <p className="import-card-meta">
+                      {getPrimaryPhoneValue(contact) || '—'} · {getPrimaryEmailValue(contact) || '—'}
+                    </p>
+                    <div className="import-card-fields">
+                      <input
+                        value={contact.name}
+                        placeholder="Name"
+                        onChange={(e) => updateContact(contact.importKey, 'name', e.target.value)}
+                      />
+                      <input
+                        value={contact.organization}
+                        placeholder="Organization"
+                        onChange={(e) =>
+                          updateContact(contact.importKey, 'organization', e.target.value)
+                        }
+                      />
+                      <select
+                        value={contact.visibility}
+                        onChange={(e) =>
+                          updateContact(contact.importKey, 'visibility', e.target.value)
+                        }
+                      >
+                        {VISIBILITY_OPTIONS.map((v) => (
+                          <option key={v.value} value={v.value}>{v.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {contact.duplicateWarnings?.length > 0 && (
+                      <p className="import-duplicate">Possible duplicate</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -566,7 +488,7 @@ export default function ImportContacts({ open, onClose, onImported }) {
                 onClick={handleImportClick}
                 disabled={loading || !selectedContacts.length}
               >
-                {loading ? 'Importing…' : `Import ${selectedContacts.length} Contact${selectedContacts.length === 1 ? '' : 's'}`}
+                {loading ? 'Importing…' : `Import Selected (${selectedContacts.length})`}
               </button>
             )}
             {step === STEPS.DONE && (
@@ -589,7 +511,7 @@ export default function ImportContacts({ open, onClose, onImported }) {
 export function ImportContactsButton({ onClick, className = 'btn btn-secondary btn-sm' }) {
   return (
     <button type="button" className={className} onClick={onClick}>
-      Import Contacts
+      Import
     </button>
   );
 }

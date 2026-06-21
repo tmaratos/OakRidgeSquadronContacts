@@ -2,6 +2,7 @@ import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export async function getContactUserProfile(uid) {
+  if (!db) return null;
   const snap = await getDoc(doc(db, 'contactUsers', uid));
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() };

@@ -44,33 +44,30 @@
   gap: 0.35rem;
 }
 
+.contact-card-tappable {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--card-border);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.contact-card-tappable:hover,
+.contact-card-tappable:focus-visible {
+  border-color: var(--gold);
+  box-shadow: 0 2px 12px rgba(201, 162, 39, 0.2);
+  outline: none;
+}
+
 .contact-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
 }
 
-.contact-card-actions .btn {
-  min-height: 44px;
-  flex: 1 1 auto;
-}
-
-.link-btn {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-
-@media (max-width: 480px) {
+@media (min-width: 769px) {
   .contact-cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .contact-card-actions {
-    flex-direction: column;
-  }
-
-  .contact-card-actions .btn {
-    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
   }
 }
