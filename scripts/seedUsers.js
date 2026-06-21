@@ -119,12 +119,13 @@ async function seedUser(user, recoveryEmails) {
 
   if (!existing.exists) {
     profileData.createdAt = now;
-    await profileRef.set(profileData);
-    console.log(`Created contactUsers profile: ${user.capid}`);
-  } else {
-    await profileRef.set(profileData, { merge: true });
-    console.log(`Updated contactUsers profile: ${user.capid}`);
   }
+  await profileRef.set(profileData, { merge: true });
+  console.log(
+    existing.exists
+      ? `Updated contactUsers profile: ${user.capid}`
+      : `Created contactUsers profile: ${user.capid}`
+  );
 
   const lookupRef = db.collection('contactUserLookup').doc(user.capid);
   await lookupRef.set(

@@ -16,7 +16,13 @@ export default function Login({ onForgotPassword }) {
       await loginWithCapid(capid.trim(), password);
     } catch (err) {
       console.error('Login failed:', err.code || err.message);
-      setError('Invalid CAPID or password. Please try again.');
+      if (err.code === 'auth/configuration-not-found') {
+        setError(
+          'Authentication is not configured for this directory yet. Contact your squadron administrator.'
+        );
+      } else {
+        setError('Invalid CAPID or password. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
