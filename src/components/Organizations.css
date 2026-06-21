@@ -1,0 +1,124 @@
+.organizations-page .org-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.org-empty-state {
+  text-align: center;
+}
+
+.org-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.org-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.org-card-header:hover {
+  background: rgba(61, 122, 184, 0.05);
+}
+
+.org-card-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.org-card-title h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--blue-accent);
+}
+
+.org-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.org-expand-icon {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+.org-summary {
+  padding: 0 1.25rem 1rem;
+  font-size: 0.88rem;
+}
+
+.org-summary p {
+  margin: 0.25rem 0;
+  color: var(--text-primary);
+}
+
+.org-notes-preview {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.org-contacts-list {
+  border-top: 1px solid var(--card-border);
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.org-contacts-list h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.org-contact-row {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.org-contact-row:last-child {
+  border-bottom: none;
+}
+
+.org-contact-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.org-contact-title {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.org-contact-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.org-contact-notes {
+  font-style: italic;
+  flex-basis: 100%;
+}
+
+@media (max-width: 768px) {
+  .org-contact-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}

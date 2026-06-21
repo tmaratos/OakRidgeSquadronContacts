@@ -7,6 +7,7 @@ import AppHeader from './components/AppHeader';
 import Dashboard from './components/Dashboard';
 import MyContacts from './components/MyContacts';
 import SharedContacts from './components/SharedContacts';
+import Organizations from './components/Organizations';
 import './components/Login.css';
 
 function ForgotPasswordModal({ onClose }) {
@@ -57,6 +58,7 @@ function AuthenticatedApp() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/my-contacts" element={<MyContacts />} />
           <Route path="/shared-contacts" element={<SharedContacts />} />
+          <Route path="/organizations" element={<Organizations />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

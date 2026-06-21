@@ -11,6 +11,11 @@ import {
   orderBy,
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import {
+  buildContactSearchText,
+  contactMatchesSearchTerm,
+  normalizeOrganization,
+} from '../utils/searchUtils';
 
 export const CONTACT_TYPES = [
   'Individual',
@@ -74,6 +79,14 @@ export const VISIBILITY_OPTIONS = [
   { value: 'shared', label: 'Shared (squadron)' },
 ];
 
+export const STATUS_OPTIONS = [
+  'Active',
+  'Inactive',
+  'Prospect',
+  'Do Not Contact',
+  'Other',
+];
+
 export function emptyContact() {
   return {
     name: '',
@@ -89,6 +102,7 @@ export function emptyContact() {
     zip: '',
     contactType: 'Individual',
     category: 'Other',
+    status: 'Active',
     relationshipOwner: '',
     source: '',
     lastContactDate: '',
@@ -153,12 +167,36 @@ export async function getSharedContacts() {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-export async function createContact(data, user) {
-  const payload = {
+export async function getVisibleContacts(ownerUid) {
+  const [mine, shared] = await Promise.all([
+    getMyContacts(ownerUid),
+    getSharedContacts(),
+  ]);
+  const byId = new Map();
+  [...shared, ...mine].forEach((c) => byId.set(c.id, c));
+  return Array.from(byId.values()).sort((a, b) =>
+    (a.name || '').localeCompare(b.name || '')
+  );
+}
+
+function enrichContactPayload(data) {
+  const organization = (data.organization || '').trim();
+  const organizationNormalized = normalizeOrganization(organization);
+  const enriched = {
     ...data,
+    organization,
+    organizationNormalized,
     emails: normalizeEmails(data.emails),
     phones: normalizePhones(data.phones),
     tags: data.tags || [],
+  };
+  enriched.searchText = buildContactSearchText(enriched);
+  return enriched;
+}
+
+export async function createContact(data, user) {
+  const payload = {
+    ...enrichContactPayload(data),
     ownerUid: user.uid,
     ownerCapid: user.profile.capid,
     ownerDisplayName: user.profile.displayName,
@@ -177,10 +215,7 @@ export async function createContact(data, user) {
 
 export async function updateContact(contactId, data, user, existing) {
   const payload = {
-    ...data,
-    emails: normalizeEmails(data.emails),
-    phones: normalizePhones(data.phones),
-    tags: data.tags || [],
+    ...enrichContactPayload(data),
     updatedAt: serverTimestamp(),
     updatedBy: user.uid,
   };
@@ -198,40 +233,7 @@ export async function deleteContact(contactId) {
 }
 
 export function contactMatchesSearch(contact, searchTerm) {
-  if (!searchTerm) return true;
-  const term = searchTerm.toLowerCase().trim();
-  const fields = [
-    contact.name,
-    contact.organization,
-    contact.title,
-    contact.website,
-    contact.address,
-    contact.city,
-    contact.state,
-    contact.zip,
-    contact.contactType,
-    contact.category,
-    contact.relationshipOwner,
-    contact.source,
-    contact.notes,
-    contact.ownerDisplayName,
-    ...(contact.tags || []),
-  ];
-
-  const preferredLabel = PREFERRED_CONTACT_METHODS.find(
-    (m) => m.value === contact.preferredContactMethod
-  )?.label;
-  if (preferredLabel) fields.push(preferredLabel);
-  fields.push(contact.preferredContactMethod);
-
-  (contact.emails || []).forEach((e) => {
-    fields.push(e.label, e.value);
-  });
-  (contact.phones || []).forEach((p) => {
-    fields.push(p.label, p.value);
-  });
-
-  return fields.some((f) => f && String(f).toLowerCase().includes(term));
+  return contactMatchesSearchTerm(contact, searchTerm);
 }
 
 export function contactMatchesFilters(contact, filters) {
@@ -241,6 +243,10 @@ export function contactMatchesFilters(contact, filters) {
     return false;
   }
   if (filters.visibility && contact.visibility !== filters.visibility) return false;
+  if (filters.status && (contact.status || 'Active') !== filters.status) return false;
+  if (filters.organization && normalizeOrganization(contact.organization) !== filters.organization) {
+    return false;
+  }
   return true;
 }
 

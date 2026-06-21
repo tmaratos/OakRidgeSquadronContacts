@@ -6,6 +6,7 @@ import {
   contactMatchesSearch,
   contactMatchesFilters,
 } from '../services/contactService';
+import { getUniqueOrganizations } from '../utils/searchUtils';
 import ContactFilters, { emptyFilters } from './ContactFilters';
 import ContactTable from './ContactTable';
 import ContactCard from './ContactCard';
@@ -47,6 +48,11 @@ export default function SharedContacts() {
     [contacts, search, filters]
   );
 
+  const organizations = useMemo(
+    () => getUniqueOrganizations(contacts),
+    [contacts]
+  );
+
   const canEdit = (contact) => contact.ownerUid === user.uid;
 
   const handleUpdate = async (formData) => {
@@ -80,6 +86,8 @@ export default function SharedContacts() {
         onSearchChange={setSearch}
         filters={filters}
         onFiltersChange={setFilters}
+        organizations={organizations}
+        showVisibilityFilter={false}
       />
 
       {loading ? (

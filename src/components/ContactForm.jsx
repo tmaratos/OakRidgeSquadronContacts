@@ -6,6 +6,7 @@ import {
   PHONE_LABELS,
   PREFERRED_CONTACT_METHODS,
   VISIBILITY_OPTIONS,
+  STATUS_OPTIONS,
   emptyContact,
   setPrimaryEmail,
   setPrimaryPhone,
@@ -113,7 +114,7 @@ export default function ContactForm({ initialData, onSubmit, onCancel, submitLab
     setLoading(true);
     try {
       await onSubmit(form);
-    } catch (err) {
+    } catch {
       setError('Unable to save contact. Please try again.');
     } finally {
       setLoading(false);
@@ -124,18 +125,73 @@ export default function ContactForm({ initialData, onSubmit, onCancel, submitLab
     <form className="contact-form card" onSubmit={handleSubmit}>
       <h2>{initialData?.id ? 'Edit Contact' : 'New Contact'}</h2>
 
-      <div className="form-row">
+      <div className="form-section">
+        <h3 className="form-section-title">Basic Information</h3>
+
         <div className="form-group">
           <label htmlFor="name">Name *</label>
           <input id="name" value={form.name} onChange={(e) => updateField('name', e.target.value)} required />
         </div>
-        <div className="form-group">
-          <label htmlFor="organization">Organization</label>
-          <input id="organization" value={form.organization} onChange={(e) => updateField('organization', e.target.value)} />
+
+        <div className="form-group organization-field">
+          <label htmlFor="organization">Organization / Agency / Company / School</label>
+          <input
+            id="organization"
+            value={form.organization}
+            onChange={(e) => updateField('organization', e.target.value)}
+            placeholder="e.g. Anderson County Clerk's Office"
+          />
+          {!form.organization.trim() && (
+            <p className="field-hint">
+              Tip: Add an organization so this contact can appear in the Organizations section.
+            </p>
+          )}
         </div>
-        <div className="form-group">
-          <label htmlFor="title">Title</label>
-          <input id="title" value={form.title} onChange={(e) => updateField('title', e.target.value)} />
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="title">Title / Role</label>
+            <input id="title" value={form.title} onChange={(e) => updateField('title', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="contactType">Contact Type</label>
+            <select id="contactType" value={form.contactType} onChange={(e) => updateField('contactType', e.target.value)}>
+              {CONTACT_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="category">Category</label>
+            <select id="category" value={form.category} onChange={(e) => updateField('category', e.target.value)}>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="status">Status</label>
+            <select id="status" value={form.status || 'Active'} onChange={(e) => updateField('status', e.target.value)}>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="preferredContactMethod">Preferred Contact Method</label>
+            <select
+              id="preferredContactMethod"
+              value={form.preferredContactMethod}
+              onChange={(e) => updateField('preferredContactMethod', e.target.value)}
+            >
+              {PREFERRED_CONTACT_METHODS.map((m) => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -213,18 +269,6 @@ export default function ContactForm({ initialData, onSubmit, onCancel, submitLab
 
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="preferredContactMethod">Preferred Contact Method</label>
-          <select
-            id="preferredContactMethod"
-            value={form.preferredContactMethod}
-            onChange={(e) => updateField('preferredContactMethod', e.target.value)}
-          >
-            {PREFERRED_CONTACT_METHODS.map((m) => (
-              <option key={m.value} value={m.value}>{m.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
           <label htmlFor="website">Website</label>
           <input id="website" value={form.website} onChange={(e) => updateField('website', e.target.value)} />
         </div>
@@ -258,22 +302,6 @@ export default function ContactForm({ initialData, onSubmit, onCancel, submitLab
       </div>
 
       <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="contactType">Contact Type</label>
-          <select id="contactType" value={form.contactType} onChange={(e) => updateField('contactType', e.target.value)}>
-            {CONTACT_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="category">Category</label>
-          <select id="category" value={form.category} onChange={(e) => updateField('category', e.target.value)}>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
         <div className="form-group">
           <label htmlFor="relationshipOwner">Relationship Owner</label>
           <input id="relationshipOwner" value={form.relationshipOwner} onChange={(e) => updateField('relationshipOwner', e.target.value)} />

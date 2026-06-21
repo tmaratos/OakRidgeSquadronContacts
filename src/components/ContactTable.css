@@ -36,6 +36,23 @@
   text-decoration: underline;
 }
 
+.contact-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.contact-subline {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.table-tags {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 .actions-cell {
   white-space: nowrap;
 }

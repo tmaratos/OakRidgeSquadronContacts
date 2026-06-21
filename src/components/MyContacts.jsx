@@ -9,6 +9,7 @@ import {
   contactMatchesSearch,
   contactMatchesFilters,
 } from '../services/contactService';
+import { getUniqueOrganizations } from '../utils/searchUtils';
 import ContactFilters, { emptyFilters } from './ContactFilters';
 import ContactTable from './ContactTable';
 import ContactCard from './ContactCard';
@@ -57,6 +58,11 @@ export default function MyContacts() {
         (c) => contactMatchesSearch(c, search) && contactMatchesFilters(c, filters)
       ),
     [contacts, search, filters]
+  );
+
+  const organizations = useMemo(
+    () => getUniqueOrganizations(contacts),
+    [contacts]
   );
 
   const handleCreate = async (formData) => {
@@ -119,6 +125,7 @@ export default function MyContacts() {
         onSearchChange={setSearch}
         filters={filters}
         onFiltersChange={setFilters}
+        organizations={organizations}
       />
 
       {loading ? (

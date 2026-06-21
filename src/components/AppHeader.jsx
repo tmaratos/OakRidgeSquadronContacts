@@ -39,6 +39,9 @@ export default function AppHeader() {
           <NavLink to="/shared-contacts" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
             Shared Contacts
           </NavLink>
+          <NavLink to="/organizations" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+            Organizations
+          </NavLink>
         </nav>
 
         <div className="header-user">

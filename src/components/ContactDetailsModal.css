@@ -28,6 +28,17 @@
   font-size: 1.3rem;
 }
 
+.modal-org-title {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  color: var(--blue-accent);
+  font-weight: 600;
+}
+
+.detail-org {
+  font-size: 1.05rem;
+}
+
 .modal-close {
   background: none;
   border: none;

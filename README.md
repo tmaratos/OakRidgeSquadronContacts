@@ -14,7 +14,9 @@ This contact directory uses its own dedicated Firebase project with Firestore co
 - Private and shared squadron contacts
 - Multiple emails and phones with primary star selection
 - Preferred contact method tracking
-- Search and filter across all contact fields
+- Organization tracking with dedicated Organizations page
+- Global search across names, organizations, emails, phones, notes, tags, and more
+- Search and filter by category, type, status, organization, and preferred contact method
 - Mobile-responsive dark navy squadron theme
 
 ## Tech Stack
@@ -106,7 +108,14 @@ User profiles for contact directory access. Fields include CAPID, name parts, di
 
 ### `contacts/{contactId}`
 
-Contact records with visibility `private` or `shared`. Includes name, organization, emails[], phones[], preferredContactMethod, address fields, contactType, category, notes, tags, and ownership metadata.
+Contact records with visibility `private` or `shared`. Includes name, organization, organizationNormalized, searchText, emails[], phones[], preferredContactMethod, status, address fields, contactType, category, notes, tags, and ownership metadata.
+
+### Organization & Search Fields
+
+- `organization` — display name for the contact's organization/agency/company/school
+- `organizationNormalized` — lowercase trimmed version for grouping and search
+- `searchText` — precomputed searchable text generated on create/update via `buildContactSearchText()`
+- `status` — Active, Inactive, Prospect, Do Not Contact, or Other
 
 ## Security
 

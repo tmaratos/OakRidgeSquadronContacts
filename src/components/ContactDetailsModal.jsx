@@ -1,4 +1,6 @@
 import {
+  getPrimaryEmail,
+  getPrimaryPhone,
   getPreferredMethodLabel,
 } from '../services/contactService';
 import './ContactDetailsModal.css';
@@ -6,11 +8,18 @@ import './ContactDetailsModal.css';
 export default function ContactDetailsModal({ contact, onClose, canEdit, onEdit }) {
   if (!contact) return null;
 
+  const primaryEmail = getPrimaryEmail(contact);
+  const primaryPhone = getPrimaryPhone(contact);
+  const orgTitle = [contact.organization, contact.title].filter(Boolean).join(' — ');
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{contact.name}</h2>
+          <div>
+            <h2>{contact.name}</h2>
+            {orgTitle && <p className="modal-org-title">{orgTitle}</p>}
+          </div>
           <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
             ×
           </button>
@@ -18,7 +27,9 @@ export default function ContactDetailsModal({ contact, onClose, canEdit, onEdit 
 
         <div className="modal-body">
           {contact.organization && (
-            <p className="detail-row"><strong>Organization:</strong> {contact.organization}</p>
+            <p className="detail-row detail-org">
+              <strong>Organization:</strong> {contact.organization}
+            </p>
           )}
           {contact.title && (
             <p className="detail-row"><strong>Title:</strong> {contact.title}</p>
@@ -61,6 +72,17 @@ export default function ContactDetailsModal({ contact, onClose, canEdit, onEdit 
             {getPreferredMethodLabel(contact.preferredContactMethod)}
           </p>
 
+          {primaryEmail && (
+            <p className="detail-row">
+              <strong>Primary Email:</strong> {primaryEmail.value}
+            </p>
+          )}
+          {primaryPhone && (
+            <p className="detail-row">
+              <strong>Primary Phone:</strong> {primaryPhone.value}
+            </p>
+          )}
+
           {contact.website && (
             <p className="detail-row">
               <strong>Website:</strong>{' '}
@@ -80,6 +102,7 @@ export default function ContactDetailsModal({ contact, onClose, canEdit, onEdit 
           <div className="detail-grid">
             <p><strong>Type:</strong> {contact.contactType}</p>
             <p><strong>Category:</strong> {contact.category}</p>
+            <p><strong>Status:</strong> {contact.status || 'Active'}</p>
             <p><strong>Visibility:</strong> {contact.visibility}</p>
             {contact.relationshipOwner && (
               <p><strong>Relationship Owner:</strong> {contact.relationshipOwner}</p>
