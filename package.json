@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "seed": "node scripts/seedUsers.js"
+    "seed": "node scripts/seedUsers.js",
+    "verify:create": "node scripts/verifyCreatePayload.mjs"
   },
   "dependencies": {
     "firebase": "^11.6.0",

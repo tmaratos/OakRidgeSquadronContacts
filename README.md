@@ -57,22 +57,38 @@ Required variables:
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
 
-### 3. Deploy Firestore rules
+### 4. Deploy Firestore rules and indexes
 
 ```bash
-firebase deploy --only firestore:rules
+NODE_OPTIONS=--use-system-ca firebase deploy --only firestore:rules,firestore:indexes --project tn170-contact-directory
 ```
 
-### 4. Create Firestore indexes
-
-When you first run queries, Firebase may prompt you to create composite indexes for:
+Composite indexes for directory queries are defined in `firestore.indexes.json`:
 
 - `contacts`: `ownerUid` ASC, `name` ASC
 - `contacts`: `visibility` ASC, `name` ASC
 
-Create these in the Firebase Console if prompted.
+Index builds can take a few minutes after deploy. Until they are ready, the Directory page shows an error instead of failing silently.
 
-### 5. Seed users
+### 5. Deploy Cloud Functions (password reset — Blaze required)
+
+Password reset requires Cloud Functions to look up `contactUserLookup/{capid}` and email a reset link to the **recovery email** (not the internal `{capid}@tn170.local` auth email). This cannot be done securely from the client alone.
+
+**Requires Firebase Blaze (pay-as-you-go) plan.** Upgrade at Firebase Console → Usage and billing, then:
+
+```bash
+cd functions && npm install && cd ..
+NODE_OPTIONS=--use-system-ca firebase deploy --only functions --project tn170-contact-directory
+```
+
+Configure SMTP env vars for the `requestPasswordReset` function (Firebase Console → Functions → requestPasswordReset → Environment variables):
+
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` (optional)
+- `PASSWORD_RESET_CONTINUE_URL` (optional; defaults to the GitHub Pages login URL)
+
+Without Blaze or SMTP, forgot-password shows a clear error explaining that Cloud Functions are not deployed.
+
+### 6. Seed users
 
 Place your Firebase service account key as `serviceAccountKey.json` in the project root (do not commit this file).
 
@@ -90,13 +106,13 @@ node scripts/seedUsers.js --reset-passwords
 
 This creates or repairs 23 squadron members in Firebase Auth and `contactUsers` profiles. Initial password for each user is their CAPID (same as username). Auth accounts use an internal `{capid}@tn170.local` email that is never displayed to users.
 
-### 6. Run locally
+### 7. Run locally
 
 ```bash
 npm run dev
 ```
 
-### 7. Build for production
+### 8. Build for production
 
 GitHub Pages builds use the project subpath. Set `VITE_BASE_PATH` when building locally to match production:
 
@@ -110,7 +126,7 @@ Preview the production build locally:
 VITE_BASE_PATH=/OakRidgeSquadronContacts/ npm run preview
 ```
 
-### 8. Deploy to GitHub Pages (production)
+### 9. Deploy to GitHub Pages (production)
 
 The app deploys automatically to GitHub Pages on push to `main` via `.github/workflows/deploy.yml`.
 

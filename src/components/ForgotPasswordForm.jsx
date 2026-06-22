@@ -25,7 +25,7 @@ export default function ForgotPasswordForm({ onBack }) {
       setRecoveryEmail('');
     } catch (err) {
       console.error('Password reset request failed:', err);
-      setError('Unable to process your request. Please try again later.');
+      setError(err.message || 'Unable to process your request. Please try again later.');
     } finally {
       setLoading(false);
     }

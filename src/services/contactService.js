@@ -200,9 +200,13 @@ function enrichContactPayload(data) {
   return enriched;
 }
 
+function omitUndefined(obj) {
+  return Object.fromEntries(Object.entries(obj).filter(([, value]) => value !== undefined));
+}
+
 function buildCreatePayload(data, userContext) {
   const { uid, profile } = userContext;
-  const payload = {
+  const payload = omitUndefined({
     ...enrichContactPayload(data),
     ownerUid: uid,
     ownerCapid: profile?.capid ?? '',
@@ -212,7 +216,7 @@ function buildCreatePayload(data, userContext) {
     createdBy: uid,
     updatedAt: serverTimestamp(),
     updatedBy: uid,
-  };
+  });
   if (payload.visibility === 'shared') {
     payload.sharedBy = profile?.displayName ?? '';
     payload.sharedAt = serverTimestamp();

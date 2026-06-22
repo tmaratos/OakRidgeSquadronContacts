@@ -58,6 +58,7 @@ export default function Directory({ onContactsChanged }) {
   const { user, profile } = useAuth();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [search, setSearch] = useState('');
   const [activeChip, setActiveChip] = useState('all');
   const [expandedOrgKey, setExpandedOrgKey] = useState(null);
@@ -66,11 +67,23 @@ export default function Directory({ onContactsChanged }) {
 
   const loadContacts = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const data = await getVisibleContacts(user.uid);
       setContacts(data);
-    } catch {
+    } catch (err) {
+      console.error('Failed to load contacts:', err);
       setContacts([]);
+      const message = err?.message || '';
+      if (err?.code === 'permission-denied') {
+        setLoadError('Permission denied loading contacts. Your account may not be active.');
+      } else if (err?.code === 'failed-precondition' || message.includes('index')) {
+        setLoadError(
+          'Unable to load contacts — Firestore indexes may still be building. Try again in a few minutes.'
+        );
+      } else {
+        setLoadError('Unable to load contacts. Please refresh the page.');
+      }
     } finally {
       setLoading(false);
     }
@@ -167,6 +180,8 @@ export default function Directory({ onContactsChanged }) {
           </button>
         ))}
       </div>
+
+      {loadError && <p className="error-message">{loadError}</p>}
 
       {loading ? (
         <p className="empty-message">Loading contacts…</p>
