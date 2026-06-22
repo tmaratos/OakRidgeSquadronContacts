@@ -41,9 +41,10 @@ service cloud.firestore {
     }
 
     match /contacts/{contactId} {
+      // List queries must match rule branches: visibility=='shared' OR ownerUid==auth.uid
       allow read: if isActiveUser() && (
         resource.data.visibility == 'shared'
-        || (resource.data.visibility == 'private' && isOwner(resource.data))
+        || isOwner(resource.data)
       );
 
       allow create: if isActiveUser()

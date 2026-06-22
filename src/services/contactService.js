@@ -157,6 +157,7 @@ export async function getMyContacts(ownerUid) {
   const q = query(
     collection(db, 'contacts'),
     where('ownerUid', '==', ownerUid),
+    where('visibility', '==', 'private'),
     orderBy('name')
   );
   const snap = await getDocs(q);
@@ -164,6 +165,7 @@ export async function getMyContacts(ownerUid) {
 }
 
 export async function getSharedContacts() {
+  requireDb();
   const q = query(
     collection(db, 'contacts'),
     where('visibility', '==', 'shared'),
