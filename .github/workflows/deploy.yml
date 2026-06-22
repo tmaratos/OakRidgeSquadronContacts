@@ -35,32 +35,21 @@ jobs:
         env:
           VITE_BASE_PATH: /OakRidgeSquadronContacts/
 
-      - name: Publish production build to docs/
+      - name: Publish production build to repo root
         run: |
-          rm -rf docs
-          mkdir -p docs
-          cp dist/index.html docs/index.html
-          cp dist/404.html docs/404.html
-          cp -r dist/assets docs/assets
-          cp dist/manifest.json docs/manifest.json
-          cp dist/squadron-logo.svg docs/squadron-logo.svg
-          touch docs/.nojekyll
+          cp dist/index.html index.html
+          cp dist/index.html 404.html
+          rm -rf assets
+          cp -r dist/assets assets
+          cp dist/manifest.json public/manifest.json
+          cp dist/squadron-logo.svg public/squadron-logo.svg
+          touch .nojekyll
 
-      - name: Point GitHub Pages at main/docs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        continue-on-error: true
-        run: |
-          gh api --method PUT "repos/${{ github.repository }}/pages" \
-            -f build_type=legacy \
-            -f "source[branch]=main" \
-            -f "source[path]=/docs"
-
-      - name: Commit docs/ for branch-based Pages
+      - name: Commit production artifacts for branch Pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs
-          git diff --staged --quiet && echo "No docs changes to commit" && exit 0
-          git commit -m "chore: publish production build to docs/ for GitHub Pages #TN-170"
+          git add index.html 404.html assets .nojekyll public/manifest.json public/squadron-logo.svg
+          git diff --staged --quiet && echo "No production artifact changes" && exit 0
+          git commit -m "chore: publish production build to repo root for GitHub Pages #TN-170"
           git push
