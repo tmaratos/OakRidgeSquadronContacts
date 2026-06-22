@@ -5,7 +5,7 @@ const GENERIC_MESSAGE =
 
 const CONTINUE_URL =
   process.env.PASSWORD_RESET_CONTINUE_URL ||
-  'https://tmaratos.github.io/OakRidgeSquadronContacts/#/login';
+  'https://tn170-contact-directory.firebaseapp.com';
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();

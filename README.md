@@ -104,10 +104,10 @@ firebase functions:config:set resend.api_key="re_xxx" --project tn170-contact-di
 **Or Firebase Console:** Functions → requestPasswordReset → Environment variables → add `RESEND_API_KEY`.
 
 3. Optional env vars:
-   - `RESEND_FROM` — sender address (must be a verified domain in Resend; defaults to `onboarding@resend.dev` for testing)
-   - `PASSWORD_RESET_CONTINUE_URL` — defaults to the GitHub Pages login URL
+   - `RESEND_FROM` � sender address (must be a verified domain in Resend; defaults to `onboarding@resend.dev` for testing)
+   - `PASSWORD_RESET_CONTINUE_URL` � defaults to `https://tn170-contact-directory.firebaseapp.com` (already authorized in Firebase Auth)
 
-4. **Authorize GitHub Pages in Firebase Auth:** Firebase Console → Authentication → Settings → Authorized domains → Add `tmaratos.github.io`. Without this, `generatePasswordResetLink` fails with "Domain not allowlisted".
+4. **Authorized domains (optional, better UX):** Password reset works out of the box using the Firebase Hosting domain above. For users to land on GitHub Pages after resetting their password, add `tmaratos.github.io` under Firebase Console ? Authentication ? Settings ? Authorized domains, then set `PASSWORD_RESET_CONTINUE_URL` to `https://tmaratos.github.io/OakRidgeSquadronContacts/#/login`.
 
 #### Gmail SMTP fallback (free alternative)
 

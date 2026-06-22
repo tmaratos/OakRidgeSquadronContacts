@@ -6,9 +6,10 @@ import { normalizeEmail, sendRecoveryEmail } from './lib/email.js';
 const GENERIC_MESSAGE =
   'If the CAPID and recovery email match an active account, a reset link has been sent.';
 
+/** Firebase Hosting default domain is always an authorized continue URL. */
 const CONTINUE_URL =
   process.env.PASSWORD_RESET_CONTINUE_URL ||
-  'https://tmaratos.github.io/OakRidgeSquadronContacts/#/login';
+  'https://tn170-contact-directory.firebaseapp.com';
 
 export const requestPasswordReset = onCall(
   { region: 'us-central1', cors: true, invoker: 'public' },
