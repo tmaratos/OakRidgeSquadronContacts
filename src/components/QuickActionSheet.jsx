@@ -44,7 +44,7 @@ export default function QuickActionSheet({ open, onClose, onAddContact, onImport
             <span className="quick-action-icon" aria-hidden="true">📥</span>
             <span>
               <strong>Import Contacts</strong>
-              <small>vCard, CSV, or device picker</small>
+              <small>Pick from contacts, vCard, or CSV</small>
             </span>
           </button>
         </div>

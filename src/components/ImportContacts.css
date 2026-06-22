@@ -61,6 +61,10 @@
   gap: 1rem;
 }
 
+.import-method-device {
+  border-color: var(--blue-accent);
+}
+
 .import-method-card {
   text-align: left;
   border: 2px solid var(--card-border);

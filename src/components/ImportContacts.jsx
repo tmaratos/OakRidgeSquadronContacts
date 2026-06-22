@@ -103,9 +103,35 @@ export default function ImportContacts({ open, onClose, onImported }) {
     onClose();
   };
 
+  const runDevicePick = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const parsed = await pickDeviceContacts();
+      if (!parsed.length) return;
+      setMethod(METHODS.DEVICE);
+      applyParsedContacts(parsed);
+    } catch (err) {
+      setError(err.message || 'Unable to access device contacts.');
+      setStep(STEPS.SOURCE);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleMethodSelect = (nextMethod) => {
     setMethod(nextMethod);
     setError('');
+
+    if (nextMethod === METHODS.DEVICE) {
+      if (deviceSupported) {
+        runDevicePick();
+        return;
+      }
+      setStep(STEPS.SOURCE);
+      return;
+    }
+
     setStep(STEPS.SOURCE);
   };
 
@@ -139,21 +165,8 @@ export default function ImportContacts({ open, onClose, onImported }) {
     }
   };
 
-  const handleDevicePick = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const parsed = await pickDeviceContacts();
-      if (!parsed.length) {
-        setError('No contacts were selected.');
-        return;
-      }
-      applyParsedContacts(parsed);
-    } catch (err) {
-      setError(err.message || 'Unable to access device contacts.');
-    } finally {
-      setLoading(false);
-    }
+  const handleDevicePick = () => {
+    runDevicePick();
   };
 
   const toggleSelectAll = (checked) => {
@@ -253,6 +266,18 @@ export default function ImportContacts({ open, onClose, onImported }) {
             <div className="import-method-grid">
               <button
                 type="button"
+                className={`import-method-card import-method-device ${method === METHODS.DEVICE ? 'selected' : ''}`}
+                onClick={() => handleMethodSelect(METHODS.DEVICE)}
+              >
+                <h3>Pick from Contacts</h3>
+                <p>
+                  {deviceSupported
+                    ? 'Opens your device contacts app to choose one or more people.'
+                    : 'Not available here — use vCard or CSV, or try Chrome on Android.'}
+                </p>
+              </button>
+              <button
+                type="button"
                 className={`import-method-card ${method === METHODS.VCARD ? 'selected' : ''}`}
                 onClick={() => handleMethodSelect(METHODS.VCARD)}
               >
@@ -266,19 +291,6 @@ export default function ImportContacts({ open, onClose, onImported }) {
               >
                 <h3>CSV (.csv)</h3>
                 <p>Import from a spreadsheet with auto-detected column names.</p>
-              </button>
-              <button
-                type="button"
-                className={`import-method-card ${method === METHODS.DEVICE ? 'selected' : ''}`}
-                onClick={() => deviceSupported && handleMethodSelect(METHODS.DEVICE)}
-                disabled={!deviceSupported}
-              >
-                <h3>Device Contact Picker</h3>
-                <p>
-                  {deviceSupported
-                    ? 'Pick contacts directly from this device (name, email, phone, address only).'
-                    : 'Not supported in this browser. Try Chrome on Android or supported mobile browsers.'}
-                </p>
               </button>
             </div>
           )}
@@ -324,7 +336,7 @@ export default function ImportContacts({ open, onClose, onImported }) {
                   {deviceSupported ? (
                     <div className="import-dropzone">
                       <p>
-                        Opens your device contact picker. Only name, email, phone, and address are
+                        Tap below to open your contacts app. Only name, email, phone, and address are
                         requested — no photos or background access.
                       </p>
                       <button
@@ -333,19 +345,24 @@ export default function ImportContacts({ open, onClose, onImported }) {
                         onClick={handleDevicePick}
                         disabled={loading}
                       >
-                        Select Device Contacts
+                        {loading ? 'Opening contacts…' : 'Import from device contacts'}
                       </button>
                     </div>
                   ) : (
                     <p className="import-unsupported-note">
-                      Device contact picker is not available in this browser. Use vCard or CSV import
-                      instead, or try a supported mobile browser (Contact Picker API).
+                      Import from device contacts is not available in this browser (requires HTTPS and
+                      Contact Picker API support). Use vCard or CSV instead, or open this app in Chrome
+                      on Android.
                     </p>
                   )}
                 </>
               )}
 
-              {loading && <p className="empty-message">Parsing contacts…</p>}
+              {loading && (
+                <p className="empty-message">
+                  {method === METHODS.DEVICE ? 'Opening contacts…' : 'Parsing contacts…'}
+                </p>
+              )}
             </div>
           )}
 

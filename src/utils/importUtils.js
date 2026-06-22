@@ -388,20 +388,51 @@ export async function parseCSVFile(file) {
   return parseCSVText(text);
 }
 
+export const DEVICE_CONTACT_PICKER_PROPS = ['name', 'email', 'tel', 'address'];
+
 export function isDeviceContactPickerSupported() {
-  return typeof navigator !== 'undefined' && 'contacts' in navigator && typeof navigator.contacts?.select === 'function';
+  if (typeof navigator === 'undefined') return false;
+  if (typeof window !== 'undefined' && !window.isSecureContext) return false;
+  return 'contacts' in navigator && typeof navigator.contacts?.select === 'function';
 }
 
-export async function pickDeviceContacts() {
+function formatContactPickerName(nameEntry) {
+  if (!nameEntry) return '';
+  if (typeof nameEntry === 'string') return nameEntry.trim();
+
+  const given = Array.isArray(nameEntry.givenName) ? nameEntry.givenName[0] : nameEntry.givenName;
+  const family = Array.isArray(nameEntry.familyName) ? nameEntry.familyName[0] : nameEntry.familyName;
+  const parts = [given, family].filter(Boolean);
+  if (parts.length) return parts.join(' ').trim();
+
+  if (Array.isArray(nameEntry.name)) return (nameEntry.name[0] || '').trim();
+  return String(nameEntry.name || '').trim();
+}
+
+function formatContactPickerNames(names) {
+  if (!names?.length) return '';
+  return formatContactPickerName(names[0]);
+}
+
+export async function pickDeviceContacts({ multiple = true } = {}) {
   if (!isDeviceContactPickerSupported()) {
-    throw new Error('Device contact picker is not supported in this browser.');
+    throw new Error(
+      'Your contacts app is not available in this browser. Use vCard or CSV import, or open this page in Chrome on Android.'
+    );
   }
 
-  const props = ['name', 'email', 'tel', 'address'];
-  const picked = await navigator.contacts.select(props, { multiple: true });
+  let picked;
+  try {
+    picked = await navigator.contacts.select(DEVICE_CONTACT_PICKER_PROPS, { multiple });
+  } catch (err) {
+    if (err?.name === 'AbortError' || err?.name === 'NotAllowedError') {
+      return [];
+    }
+    throw err;
+  }
 
   return picked.map((contact, index) => {
-    const name = contact.name?.[0] || '';
+    const name = formatContactPickerNames(contact.name);
     const emails = (contact.email || []).map((value, i) => ({
       label: i === 0 ? 'Primary' : 'Other',
       value,
