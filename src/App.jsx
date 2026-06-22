@@ -14,6 +14,7 @@ import QuickActionSheet from './components/QuickActionSheet';
 import ContactFormSheet from './components/ContactFormSheet';
 import ImportContacts from './components/ImportContacts';
 import { createContact } from './services/contactService';
+import { consumePendingSharedVCard } from './utils/shareImportUtils';
 import './components/Login.css';
 
 function PublicShell({ children }) {
@@ -55,14 +56,46 @@ function HashBootstrap({ children }) {
 
 function AuthenticatedApp() {
   const { user, profile, loading } = useAuth();
+  const location = useLocation();
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [pendingVCardText, setPendingVCardText] = useState('');
   const refreshDirectoryRef = useRef(null);
+  const shareImportHandledRef = useRef(false);
 
   const handleDirectoryRefresh = useCallback((refreshFn) => {
     refreshDirectoryRef.current = refreshFn;
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('import') !== 'vcard') return;
+    if (shareImportHandledRef.current) return;
+
+    shareImportHandledRef.current = true;
+
+    (async () => {
+      const sharedText = await consumePendingSharedVCard();
+      if (sharedText) setPendingVCardText(sharedText);
+      setShowImport(true);
+
+      params.delete('import');
+      const nextSearch = params.toString();
+      const hashPath = `${location.pathname}${nextSearch ? `?${nextSearch}` : ''}`;
+      window.history.replaceState(
+        null,
+        '',
+        `${window.location.pathname}${window.location.search}#${hashPath}`
+      );
+    })();
+  }, [location.pathname, location.search]);
+
+  const handleCloseImport = () => {
+    setShowImport(false);
+    setPendingVCardText('');
+    shareImportHandledRef.current = false;
+  };
 
   const handleCreateContact = async (formData) => {
     try {
@@ -151,8 +184,9 @@ function AuthenticatedApp() {
       )}
       <ImportContacts
         open={showImport}
-        onClose={() => setShowImport(false)}
+        onClose={handleCloseImport}
         onImported={() => refreshDirectoryRef.current?.()}
+        initialVCardText={pendingVCardText}
       />
     </div>
   );

@@ -2,6 +2,7 @@
   "name": "TN-170 Contact Directory",
   "short_name": "TN-170 Contacts",
   "description": "Oak Ridge Composite Squadron TN-170 contact directory",
+  "id": "./",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0f1c2e",
@@ -14,5 +15,19 @@
       "type": "image/svg+xml",
       "purpose": "any"
     }
-  ]
+  ],
+  "share_target": {
+    "action": "./share-import/",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "contact",
+          "accept": ["text/vcard", "text/x-vcard", ".vcf", ".vcard"]
+        }
+      ],
+      "text": "text"
+    }
+  }
 }

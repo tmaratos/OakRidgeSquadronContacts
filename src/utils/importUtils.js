@@ -390,6 +390,21 @@ export async function parseCSVFile(file) {
 
 export const DEVICE_CONTACT_PICKER_PROPS = ['name', 'email', 'tel', 'address'];
 
+export function isIOS() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  if (/iPad|iPhone|iPod/.test(ua)) return true;
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+}
+
+export function shouldPreferIOSImportFlow() {
+  return isIOS();
+}
+
+export function isVCardText(text) {
+  return /BEGIN:VCARD/i.test(text || '');
+}
+
 export function isDeviceContactPickerSupported() {
   if (typeof navigator === 'undefined') return false;
   if (typeof window !== 'undefined' && !window.isSecureContext) return false;

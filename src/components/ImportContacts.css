@@ -65,6 +65,49 @@
   border-color: var(--blue-accent);
 }
 
+.import-method-iphone {
+  border-color: var(--gold);
+  background: #fffdf8;
+}
+
+.import-ios-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.import-ios-steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.import-ios-steps li + li {
+  margin-top: 0.65rem;
+}
+
+.import-ios-steps ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.import-ios-steps ul li {
+  margin-top: 0.35rem;
+}
+
+.import-ios-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.import-ios-paste-btn {
+  width: 100%;
+  min-height: 44px;
+}
+
 .import-method-card {
   text-align: left;
   border: 2px solid var(--card-border);

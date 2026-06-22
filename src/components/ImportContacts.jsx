@@ -10,9 +10,12 @@ import {
   getPrimaryEmailValue,
   getPrimaryPhoneValue,
   isDeviceContactPickerSupported,
+  isVCardText,
   parseCSVFile,
   parseVCardFile,
+  parseVCardText,
   pickDeviceContacts,
+  shouldPreferIOSImportFlow,
 } from '../utils/importUtils';
 import './ImportContacts.css';
 import './ContactDetailsModal.css';
@@ -25,6 +28,7 @@ const STEPS = {
 };
 
 const METHODS = {
+  IPHONE: 'iphone',
   VCARD: 'vcard',
   CSV: 'csv',
   DEVICE: 'device',
@@ -33,9 +37,14 @@ const METHODS = {
 const SHARED_CONFIRM_MESSAGE =
   'You are about to share these contacts with the squadron. Only import contacts you are allowed to share.';
 
-export default function ImportContacts({ open, onClose, onImported }) {
+export default function ImportContacts({ open, onClose, onImported, initialVCardText = '' }) {
   const { user, profile } = useAuth();
   const fileInputRef = useRef(null);
+  const iosFileInputRef = useRef(null);
+  const initialVCardHandledRef = useRef('');
+
+  const preferIOSFlow = shouldPreferIOSImportFlow();
+  const deviceSupported = isDeviceContactPickerSupported();
 
   const [step, setStep] = useState(STEPS.METHOD);
   const [method, setMethod] = useState('');
@@ -46,8 +55,6 @@ export default function ImportContacts({ open, onClose, onImported }) {
   const [error, setError] = useState('');
   const [showSharedConfirm, setShowSharedConfirm] = useState(false);
   const [importedCount, setImportedCount] = useState(0);
-
-  const deviceSupported = isDeviceContactPickerSupported();
 
   const reset = useCallback(() => {
     setStep(STEPS.METHOD);
@@ -73,6 +80,41 @@ export default function ImportContacts({ open, onClose, onImported }) {
     if (user) loadExisting();
   }, [open, user, reset]);
 
+  const applyParsedContacts = useCallback(
+    (parsed) => {
+      const annotated = annotateImportDuplicates(parsed, existingContacts).map((c) => ({
+        ...c,
+        visibility: defaultVisibility,
+      }));
+      setContacts(annotated);
+      setStep(STEPS.PREVIEW);
+    },
+    [defaultVisibility, existingContacts]
+  );
+
+  useEffect(() => {
+    if (!open || !initialVCardText || initialVCardHandledRef.current === initialVCardText) return;
+
+    initialVCardHandledRef.current = initialVCardText;
+    setMethod(METHODS.IPHONE);
+    setError('');
+
+    if (!isVCardText(initialVCardText)) {
+      setError('Shared contact data was not a valid vCard. Try importing from a .vcf file instead.');
+      setStep(STEPS.SOURCE);
+      return;
+    }
+
+    const parsed = parseVCardText(initialVCardText);
+    if (!parsed.length) {
+      setError('No contacts found in the shared vCard.');
+      setStep(STEPS.SOURCE);
+      return;
+    }
+
+    applyParsedContacts(parsed);
+  }, [open, initialVCardText, applyParsedContacts]);
+
   const selectedContacts = useMemo(
     () => contacts.filter((c) => c.selected),
     [contacts]
@@ -88,7 +130,9 @@ export default function ImportContacts({ open, onClose, onImported }) {
       case STEPS.METHOD:
         return 'Step 1: Select import method';
       case STEPS.SOURCE:
-        return 'Step 2: Choose file or select contacts';
+        return preferIOSFlow
+          ? 'Step 2: Bring contact from iPhone Contacts'
+          : 'Step 2: Choose file or select contacts';
       case STEPS.PREVIEW:
         return 'Steps 3–7: Preview, select, and confirm import';
       case STEPS.DONE:
@@ -96,7 +140,7 @@ export default function ImportContacts({ open, onClose, onImported }) {
       default:
         return '';
     }
-  }, [step]);
+  }, [step, preferIOSFlow]);
 
   const handleClose = () => {
     reset();
@@ -135,15 +179,6 @@ export default function ImportContacts({ open, onClose, onImported }) {
     setStep(STEPS.SOURCE);
   };
 
-  const applyParsedContacts = (parsed) => {
-    const annotated = annotateImportDuplicates(parsed, existingContacts).map((c) => ({
-      ...c,
-      visibility: defaultVisibility,
-    }));
-    setContacts(annotated);
-    setStep(STEPS.PREVIEW);
-  };
-
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -151,7 +186,9 @@ export default function ImportContacts({ open, onClose, onImported }) {
     setError('');
     try {
       const parsed =
-        method === METHODS.VCARD ? await parseVCardFile(file) : await parseCSVFile(file);
+        method === METHODS.VCARD || method === METHODS.IPHONE
+          ? await parseVCardFile(file)
+          : await parseCSVFile(file);
       if (!parsed.length) {
         setError('No contacts found in the selected file.');
         return;
@@ -162,6 +199,39 @@ export default function ImportContacts({ open, onClose, onImported }) {
     } finally {
       setLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      if (iosFileInputRef.current) iosFileInputRef.current.value = '';
+    }
+  };
+
+  const handlePasteVCard = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      if (!navigator.clipboard?.readText) {
+        setError('Clipboard access is not available. Save the contact to Files and choose the file instead.');
+        return;
+      }
+
+      const text = await navigator.clipboard.readText();
+      if (!isVCardText(text)) {
+        setError(
+          'Clipboard does not contain vCard data. In Contacts, tap Share Contact, then Copy — or save to Files and choose the file.'
+        );
+        return;
+      }
+
+      const parsed = parseVCardText(text);
+      if (!parsed.length) {
+        setError('No contacts found in the pasted vCard.');
+        return;
+      }
+
+      setMethod(METHODS.IPHONE);
+      applyParsedContacts(parsed);
+    } catch {
+      setError('Unable to read the clipboard. Save the contact to Files and choose the .vcf file instead.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -264,18 +334,30 @@ export default function ImportContacts({ open, onClose, onImported }) {
         <div className="import-modal-body">
           {step === STEPS.METHOD && (
             <div className="import-method-grid">
-              <button
-                type="button"
-                className={`import-method-card import-method-device ${method === METHODS.DEVICE ? 'selected' : ''}`}
-                onClick={() => handleMethodSelect(METHODS.DEVICE)}
-              >
-                <h3>Pick from Contacts</h3>
-                <p>
-                  {deviceSupported
-                    ? 'Opens your device contacts app to choose one or more people.'
-                    : 'Not available here — use vCard or CSV, or try Chrome on Android.'}
-                </p>
-              </button>
+              {preferIOSFlow && (
+                <button
+                  type="button"
+                  className={`import-method-card import-method-iphone ${method === METHODS.IPHONE ? 'selected' : ''}`}
+                  onClick={() => handleMethodSelect(METHODS.IPHONE)}
+                >
+                  <h3>Import from iPhone Contacts</h3>
+                  <p>
+                    Share a contact from the Contacts app, then choose the vCard file or paste it here.
+                  </p>
+                </button>
+              )}
+
+              {deviceSupported && (
+                <button
+                  type="button"
+                  className={`import-method-card import-method-device ${method === METHODS.DEVICE ? 'selected' : ''}`}
+                  onClick={() => handleMethodSelect(METHODS.DEVICE)}
+                >
+                  <h3>Pick from Contacts</h3>
+                  <p>Opens your device contacts app to choose one or more people.</p>
+                </button>
+              )}
+
               <button
                 type="button"
                 className={`import-method-card ${method === METHODS.VCARD ? 'selected' : ''}`}
@@ -284,6 +366,7 @@ export default function ImportContacts({ open, onClose, onImported }) {
                 <h3>vCard (.vcf, .vcard)</h3>
                 <p>Import from a vCard file exported from email, phone, or contact apps.</p>
               </button>
+
               <button
                 type="button"
                 className={`import-method-card ${method === METHODS.CSV ? 'selected' : ''}`}
@@ -297,6 +380,61 @@ export default function ImportContacts({ open, onClose, onImported }) {
 
           {step === STEPS.SOURCE && (
             <div className="import-source-panel">
+              {method === METHODS.IPHONE && (
+                <div className="import-ios-panel">
+                  <ol className="import-ios-steps">
+                    <li>
+                      Open the <strong>Contacts</strong> app and tap the person you want to import.
+                    </li>
+                    <li>
+                      Tap <strong>Share Contact</strong> (box with arrow).
+                    </li>
+                    <li>
+                      Choose one:
+                      <ul>
+                        <li>
+                          <strong>Save to Files</strong> — save the .vcf, then tap <em>Choose vCard File</em>{' '}
+                          below.
+                        </li>
+                        <li>
+                          <strong>Copy</strong> — then tap <em>Paste from Clipboard</em> below.
+                        </li>
+                        <li>
+                          If TN-170 Contacts appears in the share sheet (installed PWA on Android), tap it to
+                          import directly.
+                        </li>
+                      </ul>
+                    </li>
+                  </ol>
+
+                  <div className="import-ios-actions">
+                    <div className="import-dropzone">
+                      <p>Select the .vcf file you saved from Contacts.</p>
+                      <input
+                        ref={iosFileInputRef}
+                        type="file"
+                        accept=".vcf,.vcard,text/vcard,text/x-vcard"
+                        className="import-file-input"
+                        id="import-ios-vcard-file"
+                        onChange={handleFileChange}
+                      />
+                      <label htmlFor="import-ios-vcard-file" className="btn btn-primary">
+                        Choose vCard File
+                      </label>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn btn-secondary import-ios-paste-btn"
+                      onClick={handlePasteVCard}
+                      disabled={loading}
+                    >
+                      Paste from Clipboard
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {method === METHODS.VCARD && (
                 <div className="import-dropzone">
                   <p>Select a .vcf or .vcard file to parse contacts.</p>
@@ -316,7 +454,10 @@ export default function ImportContacts({ open, onClose, onImported }) {
 
               {method === METHODS.CSV && (
                 <div className="import-dropzone">
-                  <p>Select a .csv file. Common column names (Name, Email, Phone, Organization, etc.) are detected automatically.</p>
+                  <p>
+                    Select a .csv file. Common column names (Name, Email, Phone, Organization, etc.) are
+                    detected automatically.
+                  </p>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -350,9 +491,8 @@ export default function ImportContacts({ open, onClose, onImported }) {
                     </div>
                   ) : (
                     <p className="import-unsupported-note">
-                      Import from device contacts is not available in this browser (requires HTTPS and
-                      Contact Picker API support). Use vCard or CSV instead, or open this app in Chrome
-                      on Android.
+                      Import from device contacts is not available in this browser. On iPhone, use{' '}
+                      <strong>Import from iPhone Contacts</strong> instead.
                     </p>
                   )}
                 </>
@@ -461,7 +601,9 @@ export default function ImportContacts({ open, onClose, onImported }) {
                         }
                       >
                         {VISIBILITY_OPTIONS.map((v) => (
-                          <option key={v.value} value={v.value}>{v.label}</option>
+                          <option key={v.value} value={v.value}>
+                            {v.label}
+                          </option>
                         ))}
                       </select>
                     </div>

@@ -42,7 +42,10 @@ jobs:
           cp dist/index.vite.html 404.html
           rm -rf assets
           cp -r dist/assets assets
+          cp dist/manifest.json manifest.json
           cp dist/manifest.json public/manifest.json
+          cp dist/sw.js sw.js
+          cp dist/sw.js public/sw.js
           cp dist/squadron-logo.svg public/squadron-logo.svg
           touch .nojekyll
 
@@ -50,7 +53,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html 404.html assets .nojekyll public/manifest.json public/squadron-logo.svg
+          git add index.html 404.html assets .nojekyll manifest.json sw.js public/manifest.json public/sw.js public/squadron-logo.svg
           git diff --staged --quiet && echo "No production artifact changes" && exit 0
           git commit -m "chore: publish production build to repo root for GitHub Pages [skip ci] #TN-170"
           git push
