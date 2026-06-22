@@ -208,8 +208,13 @@ export default function ImportContacts({ open, onClose, onImported }) {
       setImportedCount(payload.length);
       setStep(STEPS.DONE);
       onImported?.();
-    } catch {
-      setError('Import failed. Please try again.');
+    } catch (err) {
+      console.error('Import failed:', err);
+      const message =
+        err?.code === 'permission-denied'
+          ? 'Permission denied. Your account may not be active.'
+          : err?.message || 'Import failed. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
       setShowSharedConfirm(false);

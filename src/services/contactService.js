@@ -200,66 +200,86 @@ function enrichContactPayload(data) {
   return enriched;
 }
 
-function buildCreatePayload(data, user) {
+function buildCreatePayload(data, userContext) {
+  const { uid, profile } = userContext;
   const payload = {
     ...enrichContactPayload(data),
-    ownerUid: user.uid,
-    ownerCapid: user.profile.capid,
-    ownerDisplayName: user.profile.displayName,
+    ownerUid: uid,
+    ownerCapid: profile?.capid ?? '',
+    ownerDisplayName: profile?.displayName ?? '',
     isPinned: Boolean(data.isPinned),
     createdAt: serverTimestamp(),
-    createdBy: user.uid,
+    createdBy: uid,
     updatedAt: serverTimestamp(),
-    updatedBy: user.uid,
+    updatedBy: uid,
   };
   if (payload.visibility === 'shared') {
-    payload.sharedBy = user.profile.displayName;
+    payload.sharedBy = profile?.displayName ?? '';
     payload.sharedAt = serverTimestamp();
   }
   return payload;
 }
 
-export async function createContact(data, user) {
-  const payload = buildCreatePayload(data, user);
-  const ref = await addDoc(collection(db, 'contacts'), payload);
-  return ref.id;
+export async function createContact(data, userContext) {
+  requireDb();
+  try {
+    const payload = buildCreatePayload(data, userContext);
+    const ref = await addDoc(collection(db, 'contacts'), payload);
+    return ref.id;
+  } catch (err) {
+    console.error('createContact failed:', err);
+    throw err;
+  }
 }
 
-export async function importContactsBatch(contacts, user) {
+export async function importContactsBatch(contacts, userContext) {
+  requireDb();
   if (!contacts?.length) return [];
 
   const BATCH_LIMIT = 450;
   const ids = [];
 
-  for (let i = 0; i < contacts.length; i += BATCH_LIMIT) {
-    const chunk = contacts.slice(i, i + BATCH_LIMIT);
-    const batch = writeBatch(db);
+  try {
+    for (let i = 0; i < contacts.length; i += BATCH_LIMIT) {
+      const chunk = contacts.slice(i, i + BATCH_LIMIT);
+      const batch = writeBatch(db);
 
-    chunk.forEach((data) => {
-      const ref = doc(collection(db, 'contacts'));
-      batch.set(ref, buildCreatePayload(data, user));
-      ids.push(ref.id);
-    });
+      chunk.forEach((data) => {
+        const ref = doc(collection(db, 'contacts'));
+        batch.set(ref, buildCreatePayload(data, userContext));
+        ids.push(ref.id);
+      });
 
-    await batch.commit();
+      await batch.commit();
+    }
+  } catch (err) {
+    console.error('importContactsBatch failed:', err);
+    throw err;
   }
 
   return ids;
 }
 
-export async function updateContact(contactId, data, user, existing) {
+export async function updateContact(contactId, data, userContext, existing) {
+  requireDb();
+  const { uid, profile } = userContext;
   const payload = {
     ...enrichContactPayload(data),
     updatedAt: serverTimestamp(),
-    updatedBy: user.uid,
+    updatedBy: uid,
   };
 
   if (data.visibility === 'shared' && existing.visibility !== 'shared') {
-    payload.sharedBy = user.profile.displayName;
+    payload.sharedBy = profile?.displayName ?? '';
     payload.sharedAt = serverTimestamp();
   }
 
-  await updateDoc(doc(db, 'contacts', contactId), payload);
+  try {
+    await updateDoc(doc(db, 'contacts', contactId), payload);
+  } catch (err) {
+    console.error('updateContact failed:', err);
+    throw err;
+  }
 }
 
 export async function deleteContact(contactId) {

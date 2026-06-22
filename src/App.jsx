@@ -45,7 +45,12 @@ function AuthenticatedApp() {
   }, []);
 
   const handleCreateContact = async (formData) => {
-    await createContact(formData, { uid: user.uid, profile });
+    try {
+      await createContact(formData, { uid: user.uid, profile });
+    } catch (err) {
+      console.error('handleCreateContact failed:', err);
+      throw err;
+    }
     setShowAddContact(false);
     await refreshDirectoryRef.current?.();
   };

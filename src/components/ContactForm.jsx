@@ -127,8 +127,13 @@ export default function ContactForm({
     setLoading(true);
     try {
       await onSubmit(form);
-    } catch {
-      setError('Unable to save contact. Please try again.');
+    } catch (err) {
+      console.error('Contact save failed:', err);
+      const message =
+        err?.code === 'permission-denied'
+          ? 'Permission denied. Your account may not be active.'
+          : err?.message || 'Unable to save contact. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
