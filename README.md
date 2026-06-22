@@ -107,6 +107,8 @@ firebase functions:config:set resend.api_key="re_xxx" --project tn170-contact-di
    - `RESEND_FROM` — sender address (must be a verified domain in Resend; defaults to `onboarding@resend.dev` for testing)
    - `PASSWORD_RESET_CONTINUE_URL` — defaults to the GitHub Pages login URL
 
+4. **Authorize GitHub Pages in Firebase Auth:** Firebase Console → Authentication → Settings → Authorized domains → Add `tmaratos.github.io`. Without this, `generatePasswordResetLink` fails with "Domain not allowlisted".
+
 #### Gmail SMTP fallback (free alternative)
 
 If you prefer Gmail instead of Resend, set these env vars on the function:
