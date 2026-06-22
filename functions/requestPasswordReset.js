@@ -11,7 +11,7 @@ const CONTINUE_URL =
   'https://tmaratos.github.io/OakRidgeSquadronContacts/#/login';
 
 export const requestPasswordReset = onCall(
-  { region: 'us-central1', cors: true },
+  { region: 'us-central1', cors: true, invoker: 'public' },
   async (request) => {
     try {
       const capid = String(request.data?.capid || '').trim();
@@ -60,7 +60,7 @@ export const requestPasswordReset = onCall(
 );
 
 export const updateRecoveryEmail = onCall(
-  { region: 'us-central1', cors: true },
+  { region: 'us-central1', cors: true, invoker: 'public' },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'You must be signed in.');
