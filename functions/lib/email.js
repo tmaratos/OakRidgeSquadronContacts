@@ -110,22 +110,26 @@ async function sendViaSmtp({ to, resetLink, displayName, smtp }) {
   return true;
 }
 
-export async function sendRecoveryEmail({ to, resetLink, displayName }) {
+export async function sendRecoveryEmail({ to, resetLink, displayName, capid }) {
+  const label = capid ? `CAPID ${capid}` : to;
+
   const resend = getResendConfig();
   if (resend) {
     await sendViaResend({ to, resetLink, displayName, ...resend });
-    console.info(`Password reset email sent via Resend to ${to}`);
+    console.info(`Password reset email sent via Resend to ${to} (${label}), from ${resend.from}`);
     return true;
   }
 
   const smtp = getSmtpConfig();
   if (smtp) {
     await sendViaSmtp({ to, resetLink, displayName, smtp });
-    console.info(`Password reset email sent via SMTP to ${to}`);
+    console.info(`Password reset email sent via SMTP to ${to} (${label}), from ${smtp.from}`);
     return true;
   }
 
-  console.warn('No email provider configured (set RESEND_API_KEY or SMTP_* env vars).');
-  console.info(`Reset link for ${to}: ${resetLink}`);
+  console.warn(
+    `No email provider configured for ${label}. Set RESEND_API_KEY secret or SMTP_HOST/SMTP_USER/SMTP_PASS.`
+  );
+  console.info(`Reset link for ${to} (${label}): ${resetLink}`);
   return false;
 }

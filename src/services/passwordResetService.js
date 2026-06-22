@@ -8,6 +8,10 @@ const GENERIC_RESET_MESSAGE =
 
 const PASSWORD_RESET_URL = import.meta.env.VITE_PASSWORD_RESET_URL || '';
 
+function normalizeRecoveryEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
 export function mapPasswordResetError(err) {
   const code = err?.code || '';
 
@@ -54,11 +58,12 @@ async function requestPasswordResetViaCallable(capid, recoveryEmail) {
 }
 
 export async function requestPasswordReset(capid, recoveryEmail) {
+  const normalizedEmail = normalizeRecoveryEmail(recoveryEmail);
   try {
     if (PASSWORD_RESET_URL) {
-      return await requestPasswordResetViaHttp(capid, recoveryEmail);
+      return await requestPasswordResetViaHttp(capid, normalizedEmail);
     }
-    return await requestPasswordResetViaCallable(capid, recoveryEmail);
+    return await requestPasswordResetViaCallable(capid, normalizedEmail);
   } catch (err) {
     console.error('requestPasswordReset failed:', err);
     throw new Error(mapPasswordResetError(err));

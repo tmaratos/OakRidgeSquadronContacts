@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { normalizeEmail, sendRecoveryEmail } from './lib/email.js';
+import { passwordResetSecrets } from './lib/params.js';
 
 const GENERIC_MESSAGE =
   'If the CAPID and recovery email match an active account, a reset link has been sent.';
@@ -12,13 +13,18 @@ const CONTINUE_URL =
   'https://tn170-contact-directory.firebaseapp.com';
 
 export const requestPasswordReset = onCall(
-  { region: 'us-central1', cors: true, invoker: 'public' },
+  {
+    region: 'us-central1',
+    cors: true,
+    invoker: 'public',
+    secrets: passwordResetSecrets,
+  },
   async (request) => {
     try {
       const capid = String(request.data?.capid || '').trim();
-      const recoveryEmail = normalizeEmail(request.data?.recoveryEmail);
+      const recoveryEmailInput = normalizeEmail(request.data?.recoveryEmail);
 
-      if (!capid || !recoveryEmail) {
+      if (!capid || !recoveryEmailInput) {
         throw new HttpsError('invalid-argument', 'CAPID and recovery email are required.');
       }
 
@@ -26,11 +32,17 @@ export const requestPasswordReset = onCall(
       const lookupSnap = await db.collection('contactUserLookup').doc(capid).get();
 
       if (!lookupSnap.exists) {
+        console.info(`requestPasswordReset: no lookup for CAPID ${capid}`);
         return { message: GENERIC_MESSAGE };
       }
 
       const lookup = lookupSnap.data();
-      if (!lookup.isActive || normalizeEmail(lookup.recoveryEmail) !== recoveryEmail) {
+      const recoveryEmailOnFile = normalizeEmail(lookup.recoveryEmail);
+
+      if (!lookup.isActive || recoveryEmailOnFile !== recoveryEmailInput) {
+        console.info(
+          `requestPasswordReset: CAPID ${capid} mismatch or inactive (active=${lookup.isActive})`
+        );
         return { message: GENERIC_MESSAGE };
       }
 
@@ -39,14 +51,27 @@ export const requestPasswordReset = onCall(
         url: CONTINUE_URL,
       });
 
-      try {
-        await sendRecoveryEmail({
-          to: recoveryEmail,
-          resetLink,
-          displayName: lookup.displayName,
-        });
-      } catch (emailErr) {
-        console.error('requestPasswordReset: failed to send email:', emailErr);
+      const emailSent = await sendRecoveryEmail({
+        to: recoveryEmailOnFile,
+        resetLink,
+        displayName: lookup.displayName,
+        capid,
+      }).catch((emailErr) => {
+        console.error(
+          `requestPasswordReset: email delivery failed for CAPID ${capid} → ${recoveryEmailOnFile}:`,
+          emailErr?.message || emailErr
+        );
+        return false;
+      });
+
+      if (emailSent) {
+        console.info(
+          `requestPasswordReset: reset email sent for CAPID ${capid} → ${recoveryEmailOnFile} (auth: ${lookup.internalAuthEmail})`
+        );
+      } else {
+        console.error(
+          `requestPasswordReset: no email delivered for CAPID ${capid} → ${recoveryEmailOnFile}. Check RESEND_API_KEY / SMTP_* secrets.`
+        );
       }
 
       return { message: GENERIC_MESSAGE };
