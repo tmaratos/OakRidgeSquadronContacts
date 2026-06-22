@@ -2,6 +2,8 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { normalizeEmail, sendRecoveryEmail } from './lib/email.js';
+import { passwordResetSecrets } from './lib/params.js';
+
 const GENERIC_MESSAGE =
   'If the CAPID and recovery email match an active account, a reset link has been sent.';
 
@@ -15,6 +17,7 @@ export const requestPasswordReset = onCall(
     region: 'us-central1',
     cors: true,
     invoker: 'public',
+    secrets: passwordResetSecrets,
   },
   async (request) => {
     try {
