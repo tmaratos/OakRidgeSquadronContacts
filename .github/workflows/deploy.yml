@@ -5,18 +5,19 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
+# Skip bot commits that only refresh production artifacts at repo root.
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
   build-and-deploy:
+    if: github.event.head_commit.message != '' && !contains(github.event.head_commit.message, '[skip ci]')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,5 +52,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html 404.html assets .nojekyll public/manifest.json public/squadron-logo.svg
           git diff --staged --quiet && echo "No production artifact changes" && exit 0
-          git commit -m "chore: publish production build to repo root for GitHub Pages #TN-170"
+          git commit -m "chore: publish production build to repo root for GitHub Pages [skip ci] #TN-170"
           git push
