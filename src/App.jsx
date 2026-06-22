@@ -25,6 +25,14 @@ function PublicShell({ children }) {
   );
 }
 
+const LEGACY_DIRECTORY_REDIRECTS = [
+  '/search',
+  '/add',
+  '/contacts',
+  '/organizations',
+  '/dashboard',
+];
+
 function AuthenticatedApp() {
   const { user, profile, loading } = useAuth();
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
@@ -83,6 +91,13 @@ function AuthenticatedApp() {
       <main className="app-main">
         <Routes>
           <Route path="/" element={<Navigate to="/directory" replace />} />
+          {LEGACY_DIRECTORY_REDIRECTS.map((legacyPath) => (
+            <Route
+              key={legacyPath}
+              path={legacyPath}
+              element={<Navigate to="/directory" replace />}
+            />
+          ))}
           <Route
             path="/directory"
             element={<Directory onContactsChanged={handleDirectoryRefresh} />}
@@ -159,7 +174,16 @@ export default function App() {
       <HashRouter>
         <Routes>
           <Route path="/login" element={<LoginRoute />} />
+          <Route path="/" element={<Navigate to="/directory" replace />} />
+          {LEGACY_DIRECTORY_REDIRECTS.map((legacyPath) => (
+            <Route
+              key={legacyPath}
+              path={legacyPath}
+              element={<Navigate to="/directory" replace />}
+            />
+          ))}
           <Route path="/*" element={<AuthenticatedApp />} />
+          <Route path="*" element={<Navigate to="/directory" replace />} />
         </Routes>
       </HashRouter>
     </AuthProvider>

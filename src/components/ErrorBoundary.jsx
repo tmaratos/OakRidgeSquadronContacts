@@ -26,7 +26,11 @@ export default class ErrorBoundary extends Component {
   render() {
     if (this.state.error) {
       return (
-        <div className="loading-screen error-boundary" role="alert">
+        <div
+          className="loading-screen error-boundary"
+          role="alert"
+          style={{ background: 'var(--bg-dark, #0f1c2e)' }}
+        >
           <h1>Something went wrong</h1>
           <p>The contact directory hit an unexpected error.</p>
           <p className="error-boundary-detail">{this.state.error.message}</p>
