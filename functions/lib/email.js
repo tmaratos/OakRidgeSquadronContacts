@@ -3,13 +3,13 @@ import nodemailer from 'nodemailer';
 const DEFAULT_FROM = 'TN-170 Contact Directory <onboarding@resend.dev>';
 
 function getSmtpConfig() {
-  const host = process.env.SMTP_HOST;
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = Number(process.env.SMTP_PORT || 587);
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   const from = process.env.SMTP_FROM || user;
 
-  if (!host || !user || !pass) {
+  if (!user || !pass) {
     return null;
   }
 
@@ -120,26 +120,46 @@ export async function sendRecoveryEmail({ to, resetLink, displayName, capid }) {
     );
   }
 
+  const smtp = getSmtpConfig();
   const resend = getResendConfig();
-  if (resend) {
-    await sendViaResend({ to: recipient, resetLink, displayName, ...resend });
-    console.info(
-      `Password reset email sent via Resend to recovery address ${recipient} (${label}), from ${resend.from}`
-    );
-    return true;
+
+  // Gmail SMTP can send to any address; Resend test sender (onboarding@resend.dev) only
+  // emails the Resend account owner until a domain is verified at resend.com/domains.
+  if (smtp) {
+    try {
+      await sendViaSmtp({ to: recipient, resetLink, displayName, smtp });
+      console.info(
+        `Password reset email sent via SMTP to recovery address ${recipient} (${label}), from ${smtp.from}`
+      );
+      return true;
+    } catch (smtpErr) {
+      console.error(`SMTP send failed for ${label}:`, smtpErr?.message || smtpErr);
+    }
   }
 
-  const smtp = getSmtpConfig();
-  if (smtp) {
-    await sendViaSmtp({ to: recipient, resetLink, displayName, smtp });
-    console.info(
-      `Password reset email sent via SMTP to recovery address ${recipient} (${label}), from ${smtp.from}`
-    );
-    return true;
+  if (resend) {
+    try {
+      await sendViaResend({ to: recipient, resetLink, displayName, ...resend });
+      console.info(
+        `Password reset email sent via Resend to recovery address ${recipient} (${label}), from ${resend.from}`
+      );
+      return true;
+    } catch (resendErr) {
+      console.error(`Resend send failed for ${label}:`, resendErr?.message || resendErr);
+      if (smtp) {
+        try {
+          await sendViaSmtp({ to: recipient, resetLink, displayName, smtp });
+          console.info(`Password reset email sent via SMTP fallback to ${recipient} (${label})`);
+          return true;
+        } catch (smtpErr2) {
+          console.error(`SMTP fallback failed for ${label}:`, smtpErr2?.message || smtpErr2);
+        }
+      }
+    }
   }
 
   console.warn(
-    `No email provider configured for ${label}. Set RESEND_API_KEY or SMTP_HOST/SMTP_USER/SMTP_PASS on the function.`
+    `No email provider configured for ${label}. Set SMTP_* (Gmail app password) or verify a domain in Resend.`
   );
   console.info(`Reset link (not emailed) for recovery address ${recipient} (${label}): ${resetLink}`);
   return false;

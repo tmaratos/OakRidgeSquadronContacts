@@ -1,6 +1,6 @@
 import { defineSecret } from 'firebase-functions/params';
 
-/** Bound to requestPasswordReset so process.env.RESEND_API_KEY is available at runtime. */
 export const resendApiKey = defineSecret('RESEND_API_KEY');
 
+/** Add SMTP_USER + SMTP_PASS secrets when Gmail app password is configured. */
 export const passwordResetSecrets = [resendApiKey];

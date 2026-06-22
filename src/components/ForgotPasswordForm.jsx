@@ -37,8 +37,8 @@ export default function ForgotPasswordForm({ onBack }) {
         <div className="login-header">
           <h1>Forgot Password</h1>
           <p className="login-subtitle">
-            Enter your CAPID and the recovery email on file for your account (for example your
-            @tncap.us address). The reset link is sent to that recovery email — not your CAPID login.
+            Enter your CAPID and the recovery email shown on your Account page (must match
+            exactly). The reset link is sent to that address — not your CAPID login.
           </p>
         </div>
 

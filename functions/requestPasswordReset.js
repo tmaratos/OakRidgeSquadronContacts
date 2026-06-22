@@ -18,6 +18,10 @@ export const requestPasswordReset = onCall(
     cors: true,
     invoker: 'public',
     secrets: passwordResetSecrets,
+    environmentVariables: {
+      SMTP_HOST: 'smtp.gmail.com',
+      SMTP_PORT: '587',
+    },
   },
   async (request) => {
     try {
@@ -87,9 +91,22 @@ export const requestPasswordReset = onCall(
       }
 
       const auth = getAuth();
-      const resetLink = await auth.generatePasswordResetLink(internalAuthEmail, {
-        url: CONTINUE_URL,
-      });
+      let resetLink;
+      try {
+        resetLink = await auth.generatePasswordResetLink(internalAuthEmail, {
+          url: CONTINUE_URL,
+        });
+      } catch (linkErr) {
+        const raw = linkErr?.message || '';
+        if (raw.includes('RESET_PASSWORD_EXCEED_LIMIT')) {
+          console.error(`requestPasswordReset: rate limit for CAPID ${capid}`);
+          return {
+            message:
+              'Too many password reset attempts. Please wait about an hour and try again, or contact squadron leadership.',
+          };
+        }
+        throw linkErr;
+      }
 
       const emailSent = await sendRecoveryEmail({
         to: recoveryEmailOnFile,
