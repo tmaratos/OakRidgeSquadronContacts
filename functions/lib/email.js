@@ -14,6 +14,8 @@ function getSmtpConfig() {
   return { host, port, user, pass, from };
 }
 
+export { getSmtpConfig };
+
 export function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
 }

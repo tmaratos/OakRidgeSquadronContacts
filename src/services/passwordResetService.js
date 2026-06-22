@@ -21,6 +21,9 @@ export function mapPasswordResetError(err) {
   if (code === 'functions/internal' || code === 'internal') {
     return 'The password reset service encountered a server error. Cloud Functions may need to be deployed or SMTP configured. Contact squadron leadership if this persists.';
   }
+  if (code === 'functions/failed-precondition') {
+    return err.message || 'Password reset email is not configured on the server. Contact squadron leadership for help resetting your password.';
+  }
   if (err?.message?.includes('Firebase is not initialized')) {
     return err.message;
   }

@@ -1,45 +1,68 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { normalizeEmail, sendRecoveryEmail } from './lib/email.js';
+import { normalizeEmail, sendRecoveryEmail, getSmtpConfig } from './lib/email.js';
 
 const GENERIC_MESSAGE =
   'If the CAPID and recovery email match an active account, a reset link has been sent.';
 
+const SMTP_NOT_CONFIGURED_MESSAGE =
+  'Password reset email could not be sent because SMTP is not configured on the server. Contact squadron leadership for help resetting your password.';
+
 export const requestPasswordReset = onCall(
   { region: 'us-central1', cors: true },
   async (request) => {
-    const capid = String(request.data?.capid || '').trim();
-    const recoveryEmail = normalizeEmail(request.data?.recoveryEmail);
+    try {
+      const capid = String(request.data?.capid || '').trim();
+      const recoveryEmail = normalizeEmail(request.data?.recoveryEmail);
 
-    if (!capid || !recoveryEmail) {
-      throw new HttpsError('invalid-argument', 'CAPID and recovery email are required.');
-    }
+      if (!capid || !recoveryEmail) {
+        throw new HttpsError('invalid-argument', 'CAPID and recovery email are required.');
+      }
 
-    const db = getFirestore();
-    const lookupSnap = await db.collection('contactUserLookup').doc(capid).get();
+      const db = getFirestore();
+      const lookupSnap = await db.collection('contactUserLookup').doc(capid).get();
 
-    if (!lookupSnap.exists) {
+      if (!lookupSnap.exists) {
+        return { message: GENERIC_MESSAGE };
+      }
+
+      const lookup = lookupSnap.data();
+      if (!lookup.isActive || normalizeEmail(lookup.recoveryEmail) !== recoveryEmail) {
+        return { message: GENERIC_MESSAGE };
+      }
+
+      if (!getSmtpConfig()) {
+        console.error('requestPasswordReset: SMTP env vars are not configured.');
+        throw new HttpsError('failed-precondition', SMTP_NOT_CONFIGURED_MESSAGE);
+      }
+
+      const auth = getAuth();
+      const resetLink = await auth.generatePasswordResetLink(lookup.internalAuthEmail, {
+        url: process.env.PASSWORD_RESET_CONTINUE_URL || 'https://tmaratos.github.io/OakRidgeSquadronContacts/#/login',
+      });
+
+      const sent = await sendRecoveryEmail({
+        to: recoveryEmail,
+        resetLink,
+        displayName: lookup.displayName,
+      });
+
+      if (!sent) {
+        throw new HttpsError('failed-precondition', SMTP_NOT_CONFIGURED_MESSAGE);
+      }
+
       return { message: GENERIC_MESSAGE };
+    } catch (err) {
+      if (err instanceof HttpsError) {
+        throw err;
+      }
+      console.error('requestPasswordReset failed:', err);
+      throw new HttpsError(
+        'internal',
+        'The password reset service encountered an unexpected error. Please try again later or contact squadron leadership.'
+      );
     }
-
-    const lookup = lookupSnap.data();
-    if (!lookup.isActive || normalizeEmail(lookup.recoveryEmail) !== recoveryEmail) {
-      return { message: GENERIC_MESSAGE };
-    }
-
-    const auth = getAuth();
-    const resetLink = await auth.generatePasswordResetLink(lookup.internalAuthEmail, {
-      url: process.env.PASSWORD_RESET_CONTINUE_URL || 'https://tmaratos.github.io/OakRidgeSquadronContacts/#/login',
-    });
-
-    await sendRecoveryEmail({
-      to: recoveryEmail,
-      resetLink,
-      displayName: lookup.displayName,
-    });
-
-    return { message: GENERIC_MESSAGE };
   }
 );
 

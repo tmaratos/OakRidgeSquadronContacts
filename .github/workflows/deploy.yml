@@ -38,8 +38,8 @@ jobs:
 
       - name: Publish production build to repo root
         run: |
-          cp dist/index.html index.html
-          cp dist/index.html 404.html
+          cp dist/index.vite.html index.html
+          cp dist/index.vite.html 404.html
           rm -rf assets
           cp -r dist/assets assets
           cp dist/manifest.json public/manifest.json

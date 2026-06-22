@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
@@ -32,6 +32,26 @@ const LEGACY_DIRECTORY_REDIRECTS = [
   '/organizations',
   '/dashboard',
 ];
+
+function HashBootstrap({ children }) {
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash || hash === '#' || hash === '#/') {
+      window.location.replace(`${window.location.pathname}${window.location.search}#/directory`);
+    }
+  }, []);
+
+  if (!location.pathname || location.pathname === '/') {
+    const hash = window.location.hash;
+    if (!hash || hash === '#' || hash === '#/') {
+      return <div className="loading-screen">Loading…</div>;
+    }
+  }
+
+  return children;
+}
 
 function AuthenticatedApp() {
   const { user, profile, loading } = useAuth();
@@ -177,19 +197,21 @@ export default function App() {
   return (
     <AuthProvider>
       <HashRouter>
-        <Routes>
-          <Route path="/login" element={<LoginRoute />} />
-          <Route path="/" element={<Navigate to="/directory" replace />} />
-          {LEGACY_DIRECTORY_REDIRECTS.map((legacyPath) => (
-            <Route
-              key={legacyPath}
-              path={legacyPath}
-              element={<Navigate to="/directory" replace />}
-            />
-          ))}
-          <Route path="/*" element={<AuthenticatedApp />} />
-          <Route path="*" element={<Navigate to="/directory" replace />} />
-        </Routes>
+        <HashBootstrap>
+          <Routes>
+            <Route path="/login" element={<LoginRoute />} />
+            <Route path="/" element={<Navigate to="/directory" replace />} />
+            {LEGACY_DIRECTORY_REDIRECTS.map((legacyPath) => (
+              <Route
+                key={legacyPath}
+                path={legacyPath}
+                element={<Navigate to="/directory" replace />}
+              />
+            ))}
+            <Route path="/*" element={<AuthenticatedApp />} />
+            <Route path="*" element={<Navigate to="/directory" replace />} />
+          </Routes>
+        </HashBootstrap>
       </HashRouter>
     </AuthProvider>
   );

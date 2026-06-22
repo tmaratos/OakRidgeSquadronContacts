@@ -23,12 +23,21 @@ export default function RecoveryEmailSettings() {
 
     setLoading(true);
     try {
-      await updateRecoveryEmail(trimmed);
+      const result = await updateRecoveryEmail(trimmed);
       await refreshProfile();
-      setSuccess('Recovery email updated.');
+      setSuccess(
+        result?.source === 'client'
+          ? 'Recovery email saved.'
+          : 'Recovery email updated.'
+      );
     } catch (err) {
       console.error('Recovery email update failed:', err);
-      setError('Unable to update recovery email. Please try again.');
+      const code = err?.code || '';
+      if (code === 'permission-denied' || err?.message?.includes('permission')) {
+        setError('Unable to save recovery email. Firestore rules may need to be deployed.');
+      } else {
+        setError(err?.message || 'Unable to update recovery email. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

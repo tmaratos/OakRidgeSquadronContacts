@@ -11,7 +11,17 @@
     <link rel="manifest" href="/OakRidgeSquadronContacts/manifest.json" />
     <link rel="apple-touch-icon" href="/OakRidgeSquadronContacts/squadron-logo.svg" />
     <title>Oak Ridge Composite Squadron TN-170 — Contact Directory</title>
-    <script type="module" crossorigin src="/OakRidgeSquadronContacts/assets/index-CU9FOzO-.js"></script>
+    <script>
+      (function () {
+        var hash = window.location.hash;
+        if (!hash || hash === '#' || hash === '#/') {
+          window.location.replace(
+            window.location.pathname + window.location.search + '#/directory'
+          );
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/OakRidgeSquadronContacts/assets/index.vite-VoPuzfj7.js"></script>
     <link rel="stylesheet" crossorigin href="/OakRidgeSquadronContacts/assets/index-DPN_iEG3.css">
   </head>
   <body>
