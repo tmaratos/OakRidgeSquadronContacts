@@ -2,8 +2,6 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { normalizeEmail, sendRecoveryEmail } from './lib/email.js';
-import { passwordResetSecrets } from './lib/params.js';
-
 const GENERIC_MESSAGE =
   'If the CAPID and recovery email match an active account, a reset link has been sent.';
 
@@ -17,7 +15,6 @@ export const requestPasswordReset = onCall(
     region: 'us-central1',
     cors: true,
     invoker: 'public',
-    secrets: passwordResetSecrets,
   },
   async (request) => {
     try {
@@ -37,17 +34,57 @@ export const requestPasswordReset = onCall(
       }
 
       const lookup = lookupSnap.data();
-      const recoveryEmailOnFile = normalizeEmail(lookup.recoveryEmail);
 
-      if (!lookup.isActive || recoveryEmailOnFile !== recoveryEmailInput) {
-        console.info(
-          `requestPasswordReset: CAPID ${capid} mismatch or inactive (active=${lookup.isActive})`
+      if (!lookup.isActive) {
+        console.info(`requestPasswordReset: CAPID ${capid} inactive`);
+        return { message: GENERIC_MESSAGE };
+      }
+
+      // Prefer contactUsers profile — it reflects Account page updates; lookup may be stale.
+      let recoveryEmailOnFile = normalizeEmail(lookup.recoveryEmail);
+      if (lookup.uid) {
+        const profileSnap = await db.collection('contactUsers').doc(lookup.uid).get();
+        if (profileSnap.exists) {
+          const profileRecovery = normalizeEmail(profileSnap.data().recoveryEmail);
+          if (profileRecovery) {
+            if (profileRecovery !== recoveryEmailOnFile) {
+              console.info(
+                `requestPasswordReset: syncing lookup recovery email for CAPID ${capid} (${recoveryEmailOnFile} → ${profileRecovery})`
+              );
+              await db.collection('contactUserLookup').doc(capid).update({
+                recoveryEmail: profileRecovery,
+                updatedAt: FieldValue.serverTimestamp(),
+              });
+            }
+            recoveryEmailOnFile = profileRecovery;
+          }
+        }
+      }
+
+      if (
+        !recoveryEmailOnFile
+        || recoveryEmailOnFile.endsWith('@tn170.local')
+        || !recoveryEmailOnFile.includes('@')
+      ) {
+        console.error(
+          `requestPasswordReset: no valid recovery email on file for CAPID ${capid} (must not use @tn170.local)`
         );
         return { message: GENERIC_MESSAGE };
       }
 
+      if (recoveryEmailOnFile !== recoveryEmailInput) {
+        console.info(`requestPasswordReset: CAPID ${capid} recovery email mismatch`);
+        return { message: GENERIC_MESSAGE };
+      }
+
+      const internalAuthEmail = lookup.internalAuthEmail;
+      if (!internalAuthEmail || !internalAuthEmail.endsWith('@tn170.local')) {
+        console.error(`requestPasswordReset: missing internal auth email for CAPID ${capid}`);
+        return { message: GENERIC_MESSAGE };
+      }
+
       const auth = getAuth();
-      const resetLink = await auth.generatePasswordResetLink(lookup.internalAuthEmail, {
+      const resetLink = await auth.generatePasswordResetLink(internalAuthEmail, {
         url: CONTINUE_URL,
       });
 

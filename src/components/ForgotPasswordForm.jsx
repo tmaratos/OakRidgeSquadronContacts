@@ -37,7 +37,8 @@ export default function ForgotPasswordForm({ onBack }) {
         <div className="login-header">
           <h1>Forgot Password</h1>
           <p className="login-subtitle">
-            Enter your CAPID and recovery email to receive a password reset link.
+            Enter your CAPID and the recovery email on file for your account (for example your
+            @tncap.us address). The reset link is sent to that recovery email — not your CAPID login.
           </p>
         </div>
 
@@ -64,7 +65,7 @@ export default function ForgotPasswordForm({ onBack }) {
               autoComplete="email"
               value={recoveryEmail}
               onChange={(e) => setRecoveryEmail(e.target.value)}
-              placeholder="Enter your recovery email"
+              placeholder="e.g. 729204@tncap.us"
               required
             />
           </div>

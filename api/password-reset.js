@@ -113,7 +113,26 @@ export default async function handler(req, res) {
     }
 
     const lookup = lookupSnap.data();
-    if (!lookup.isActive || normalizeEmail(lookup.recoveryEmail) !== recoveryEmail) {
+    if (!lookup.isActive) {
+      return res.status(200).json({ message: GENERIC_MESSAGE });
+    }
+
+    let recoveryEmailOnFile = normalizeEmail(lookup.recoveryEmail);
+    if (lookup.uid) {
+      const profileSnap = await db.collection('contactUsers').doc(lookup.uid).get();
+      if (profileSnap.exists) {
+        const profileRecovery = normalizeEmail(profileSnap.data().recoveryEmail);
+        if (profileRecovery) {
+          recoveryEmailOnFile = profileRecovery;
+        }
+      }
+    }
+
+    if (
+      !recoveryEmailOnFile
+      || recoveryEmailOnFile.endsWith('@tn170.local')
+      || recoveryEmailOnFile !== recoveryEmail
+    ) {
       return res.status(200).json({ message: GENERIC_MESSAGE });
     }
 
@@ -122,7 +141,7 @@ export default async function handler(req, res) {
     });
 
     try {
-      await sendViaResend({ to: recoveryEmail, resetLink, displayName: lookup.displayName });
+      await sendViaResend({ to: recoveryEmailOnFile, resetLink, displayName: lookup.displayName });
     } catch (emailErr) {
       console.error('password-reset API: email send failed:', emailErr);
     }

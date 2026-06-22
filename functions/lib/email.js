@@ -111,25 +111,36 @@ async function sendViaSmtp({ to, resetLink, displayName, smtp }) {
 }
 
 export async function sendRecoveryEmail({ to, resetLink, displayName, capid }) {
-  const label = capid ? `CAPID ${capid}` : to;
+  const recipient = normalizeEmail(to);
+  const label = capid ? `CAPID ${capid}` : recipient;
+
+  if (!recipient || recipient.endsWith('@tn170.local')) {
+    throw new Error(
+      `Refusing to send password reset to internal auth address (${recipient}). Use recovery email.`
+    );
+  }
 
   const resend = getResendConfig();
   if (resend) {
-    await sendViaResend({ to, resetLink, displayName, ...resend });
-    console.info(`Password reset email sent via Resend to ${to} (${label}), from ${resend.from}`);
+    await sendViaResend({ to: recipient, resetLink, displayName, ...resend });
+    console.info(
+      `Password reset email sent via Resend to recovery address ${recipient} (${label}), from ${resend.from}`
+    );
     return true;
   }
 
   const smtp = getSmtpConfig();
   if (smtp) {
-    await sendViaSmtp({ to, resetLink, displayName, smtp });
-    console.info(`Password reset email sent via SMTP to ${to} (${label}), from ${smtp.from}`);
+    await sendViaSmtp({ to: recipient, resetLink, displayName, smtp });
+    console.info(
+      `Password reset email sent via SMTP to recovery address ${recipient} (${label}), from ${smtp.from}`
+    );
     return true;
   }
 
   console.warn(
-    `No email provider configured for ${label}. Set RESEND_API_KEY secret or SMTP_HOST/SMTP_USER/SMTP_PASS.`
+    `No email provider configured for ${label}. Set RESEND_API_KEY or SMTP_HOST/SMTP_USER/SMTP_PASS on the function.`
   );
-  console.info(`Reset link for ${to} (${label}): ${resetLink}`);
+  console.info(`Reset link (not emailed) for recovery address ${recipient} (${label}): ${resetLink}`);
   return false;
 }
