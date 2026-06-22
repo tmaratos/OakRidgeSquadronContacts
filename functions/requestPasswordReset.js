@@ -1,13 +1,14 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { normalizeEmail, sendRecoveryEmail, getSmtpConfig } from './lib/email.js';
+import { normalizeEmail, sendRecoveryEmail } from './lib/email.js';
 
 const GENERIC_MESSAGE =
   'If the CAPID and recovery email match an active account, a reset link has been sent.';
 
-const SMTP_NOT_CONFIGURED_MESSAGE =
-  'Password reset email could not be sent because SMTP is not configured on the server. Contact squadron leadership for help resetting your password.';
+const CONTINUE_URL =
+  process.env.PASSWORD_RESET_CONTINUE_URL ||
+  'https://tmaratos.github.io/OakRidgeSquadronContacts/#/login';
 
 export const requestPasswordReset = onCall(
   { region: 'us-central1', cors: true },
@@ -32,24 +33,19 @@ export const requestPasswordReset = onCall(
         return { message: GENERIC_MESSAGE };
       }
 
-      if (!getSmtpConfig()) {
-        console.error('requestPasswordReset: SMTP env vars are not configured.');
-        throw new HttpsError('failed-precondition', SMTP_NOT_CONFIGURED_MESSAGE);
-      }
-
       const auth = getAuth();
       const resetLink = await auth.generatePasswordResetLink(lookup.internalAuthEmail, {
-        url: process.env.PASSWORD_RESET_CONTINUE_URL || 'https://tmaratos.github.io/OakRidgeSquadronContacts/#/login',
+        url: CONTINUE_URL,
       });
 
-      const sent = await sendRecoveryEmail({
-        to: recoveryEmail,
-        resetLink,
-        displayName: lookup.displayName,
-      });
-
-      if (!sent) {
-        throw new HttpsError('failed-precondition', SMTP_NOT_CONFIGURED_MESSAGE);
+      try {
+        await sendRecoveryEmail({
+          to: recoveryEmail,
+          resetLink,
+          displayName: lookup.displayName,
+        });
+      } catch (emailErr) {
+        console.error('requestPasswordReset: failed to send email:', emailErr);
       }
 
       return { message: GENERIC_MESSAGE };
@@ -58,10 +54,7 @@ export const requestPasswordReset = onCall(
         throw err;
       }
       console.error('requestPasswordReset failed:', err);
-      throw new HttpsError(
-        'internal',
-        'The password reset service encountered an unexpected error. Please try again later or contact squadron leadership.'
-      );
+      return { message: GENERIC_MESSAGE };
     }
   }
 );

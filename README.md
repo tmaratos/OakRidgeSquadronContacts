@@ -70,23 +70,77 @@ Composite indexes for directory queries are defined in `firestore.indexes.json`:
 
 Index builds can take a few minutes after deploy. Until they are ready, the Directory page shows an error instead of failing silently.
 
-### 5. Deploy Cloud Functions (password reset — Blaze required)
+### 5. Deploy Cloud Functions (password reset — Blaze required, $0 at squadron scale)
 
 Password reset requires Cloud Functions to look up `contactUserLookup/{capid}` and email a reset link to the **recovery email** (not the internal `{capid}@tn170.local` auth email). This cannot be done securely from the client alone.
 
-**Requires Firebase Blaze (pay-as-you-go) plan.** Upgrade at Firebase Console → Usage and billing, then:
+**Requires Firebase Blaze (pay-as-you-go) plan.** Blaze is required for Cloud Functions, but this app stays within free tiers (~23 users, well under 2M function invocations/month). Upgrade at Firebase Console → Usage and billing, then:
 
 ```bash
 cd functions && npm install && cd ..
 NODE_OPTIONS=--use-system-ca firebase deploy --only functions --project tn170-contact-directory
 ```
 
-Configure SMTP env vars for the `requestPasswordReset` function (Firebase Console → Functions → requestPasswordReset → Environment variables):
+#### Free email delivery (Resend — recommended)
 
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` (optional)
-- `PASSWORD_RESET_CONTINUE_URL` (optional; defaults to the GitHub Pages login URL)
+[Resend](https://resend.com) offers **3,000 emails/month free** (100/day), enough for squadron password resets.
 
-Without Blaze or SMTP, forgot-password shows a clear error explaining that Cloud Functions are not deployed.
+1. Create a free Resend account and generate an API key.
+2. Set it on the Cloud Function (pick one method):
+
+**Firebase secrets (recommended for 2nd gen functions):**
+
+```bash
+firebase functions:secrets:set RESEND_API_KEY --project tn170-contact-directory
+# paste your re_xxx key when prompted, then redeploy functions
+```
+
+**Or legacy functions config:**
+
+```bash
+firebase functions:config:set resend.api_key="re_xxx" --project tn170-contact-directory
+```
+
+**Or Firebase Console:** Functions → requestPasswordReset → Environment variables → add `RESEND_API_KEY`.
+
+3. Optional env vars:
+   - `RESEND_FROM` — sender address (must be a verified domain in Resend; defaults to `onboarding@resend.dev` for testing)
+   - `PASSWORD_RESET_CONTINUE_URL` — defaults to the GitHub Pages login URL
+
+#### Gmail SMTP fallback (free alternative)
+
+If you prefer Gmail instead of Resend, set these env vars on the function:
+
+- `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`
+- `SMTP_USER` — your Gmail address
+- `SMTP_PASS` — a [Gmail App Password](https://support.google.com/accounts/answer/185833) (not your regular password)
+- `SMTP_FROM` (optional)
+
+Resend is tried first when `RESEND_API_KEY` is set; SMTP is used as fallback.
+
+#### Testing without an API key
+
+If neither Resend nor SMTP is configured, the function still returns the generic success message (for security) and logs the reset link in Cloud Functions logs for manual testing:
+
+Firebase Console → Functions → requestPasswordReset → Logs
+
+Without Blaze, forgot-password shows a clear error explaining that Cloud Functions are not deployed.
+
+#### Vercel fallback (free, if Blaze upgrade is blocked)
+
+If you cannot enable Blaze yet, deploy the included serverless API to [Vercel](https://vercel.com) (free tier):
+
+1. Import this repo in Vercel (one-click deploy from GitHub).
+2. Set these **Environment Variables** in Vercel → Project → Settings → Environment Variables:
+   - `FIREBASE_SERVICE_ACCOUNT_JSON` — paste the full JSON from your Firebase service account key (Project Settings → Service accounts → Generate new private key)
+   - `RESEND_API_KEY` — your free Resend API key (`re_xxx`)
+   - `RESEND_FROM` (optional) — verified sender address
+   - `ALLOWED_ORIGIN` (optional) — defaults to `https://tmaratos.github.io`
+3. After deploy, copy your API URL (e.g. `https://your-project.vercel.app/api/password-reset`).
+4. Add to GitHub Actions secrets (or `.env.local` for local dev):
+   - `VITE_PASSWORD_RESET_URL=https://your-project.vercel.app/api/password-reset`
+
+The frontend uses `VITE_PASSWORD_RESET_URL` when set; otherwise it calls Firebase Cloud Functions.
 
 ### 6. Seed users
 

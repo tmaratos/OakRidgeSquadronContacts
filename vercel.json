@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/password-reset.js": {
+      "maxDuration": 30
+    }
+  }
+}
